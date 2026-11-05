@@ -233,6 +233,12 @@
 <div class="editbanner hide" id="s-editBanner"></div>
 <h2>Saved setups</h2>
 <div id="s-savedList"></div>
+<div class="toolbar">
+  <button id="s-exportSetups">Export setups</button>
+  <button id="s-importSetups">Import setups</button>
+  <input type="file" id="s-importFile" accept=".json,application/json" class="hide">
+  <span class="msg" id="s-bkMsg"></span>
+</div>
 <div id="s-results"></div>
 
 <div class="pop hide" id="s-pop">
@@ -1078,6 +1084,64 @@ $('mpYes').addEventListener('click', () => { closeMp(); saveTxt(true); });
 $('mpNo').addEventListener('click', () => { closeMp(); saveTxt(false); });
 $('mpCancel').addEventListener('click', closeMp);
 $('mpPanel').addEventListener('click', e => e.stopPropagation());
+
+// ----- backup: export / import all saved setups -----
+let bkTimer = null;
+function bkSay(t){
+  const m = $('bkMsg');
+  m.textContent = t;
+  clearTimeout(bkTimer);
+  bkTimer = setTimeout(() => { m.textContent = ''; }, 5000);
+}
+function cleanSetup(x){
+  if(!x || typeof x !== 'object' || !x.st || typeof x.st !== 'object') return null;
+  const st = x.st, N = Math.floor(+st.N);
+  if(!(N >= 1 && N <= 500) || !/^[IOM]$/.test(st.mode) || !Array.isArray(st.assign)) return null;
+  const assign = [];
+  for(const a of st.assign){
+    if(!Array.isArray(a) || !a[1] || typeof a[1].v !== 'string' || typeof a[1].s !== 'string') return null;
+    const p = Math.floor(+a[0]);
+    if(!(p >= 1 && p <= N)) return null;
+    assign.push([p, {v:a[1].v, s:a[1].s}]);
+  }
+  const out = {N, mode:st.mode, count:String(st.count === undefined ? '6' : st.count), seq:String(st.seq || ''),
+    basis: st.basis === 'start' ? 'start' : 'end', assign};
+  if(typeof st.showMid === 'boolean'){ out.showMid = st.showMid; out.midWhich = st.midWhich === 'top' ? 'top' : 'bottom'; }
+  return {name: String(x.name || 'Setup').slice(0, 80), st: out};
+}
+$('exportSetups').addEventListener('click', () => {
+  const all = Store.all();
+  if(!all.length){ bkSay('No saved setups to export.'); return; }
+  const data = {app:'faro-lab', version:1, setups: all.map(x => ({name:x.name, st:x.st}))};
+  download(new Blob([JSON.stringify(data, null, 1)], {type:'application/json'}), 'faro-lab-setups.json');
+  bkSay('Exported ' + all.length + (all.length === 1 ? ' setup.' : ' setups.'));
+});
+$('importSetups').addEventListener('click', () => $('importFile').click());
+$('importFile').addEventListener('change', () => {
+  const f = $('importFile').files && $('importFile').files[0];
+  try{ $('importFile').value = ''; }catch(e){}
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    let data = null;
+    try{ data = JSON.parse(r.result); }catch(e){}
+    if(!data || data.app !== 'faro-lab' || !Array.isArray(data.setups)){ bkSay('That file is not a Faro Lab export.'); return; }
+    let added = 0, skipped = 0;
+    data.setups.forEach(x => {
+      const c = cleanSetup(x);
+      if(!c){ skipped++; return; }
+      const js = JSON.stringify(c.st);
+      if(Store.all().some(o => o.name === c.name && JSON.stringify(o.st) === js)){ skipped++; return; }
+      let name = c.name, i = 2;
+      while(Store.all().some(o => o.name === name)) name = c.name + ' (' + (i++) + ')';
+      Store.add(name, c.st);
+      added++;
+    });
+    bkSay('Imported ' + added + (added === 1 ? ' setup' : ' setups') + (skipped ? ', skipped ' + skipped + ' (duplicates or invalid).' : '.'));
+  };
+  r.onerror = () => bkSay('Could not read that file.');
+  r.readAsText(f);
+});
 
 // ----- saved setups -----
 let editingId = null, msgTimer = null;
