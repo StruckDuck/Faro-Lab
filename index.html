@@ -170,6 +170,7 @@
   .card.mid{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
   .card .mk{position:absolute;left:5px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:bold;color:#7a5a14;line-height:1.1;max-width:30px;word-break:break-all}
   .pop.mp{width:300px}
+  .card.empty{opacity:1;background:#e2d8bf}
   .pop.wide{width:380px;max-height:70vh;overflow-y:auto}
 </style>
 </head>
@@ -602,21 +603,9 @@ function recompute(){
       selList === list ? sel : null);
     el.querySelectorAll('.card.has').forEach(d => d.addEventListener('pointerdown', e => pressStart(list, +d.dataset.pos, d, e)));
   });
-  const mids = midpoints(seq, N, midWhich);
   $('seqLine').innerHTML = !seq.length ? 'No shuffles. Starting and ending positions are the same.'
     : (mode === 'M' ? 'Shuffles in order: <b>' + seq.map(x => x==='I' ? 'In' : 'Out').join(', ') + '</b>' : '');
-  let h = '';
-  if(showMid && mids.length){
-    const warns = [];
-    const seen = {};
-    mids.forEach(m=>{
-      if(v.start[m.start]) warns.push('M'+m.n+' (position '+m.start+') is where '+cardLabel(v.start[m.start])+' starts.');
-      (seen[m.start] = seen[m.start] || []).push(m.n);
-    });
-    Object.keys(seen).forEach(k=>{ if(seen[k].length>1) warns.push('M'+seen[k].join(' and M')+' share position '+k+'.'); });
-    warns.forEach(w => { h += '<div class="warn">'+w+'</div>'; });
-  }
-  $('results').innerHTML = h;
+  $('results').innerHTML = '';
 }
 
 // ----- selection and dragging -----
