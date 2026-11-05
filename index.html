@@ -411,7 +411,7 @@ function seqFrom(mode, count, seqStr){
   return Array(n).fill(mode);
 }
 const VALUES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-const SUITS = [{n:'Spades',g:'♠',r:false},{n:'Hearts',g:'♥',r:true},{n:'Diamonds',g:'♦',r:true},{n:'Clubs',g:'♣',r:false}];
+const SUITS = [{n:'Clubs',g:'♣',r:false},{n:'Hearts',g:'♥',r:true},{n:'Spades',g:'♠',r:false},{n:'Diamonds',g:'♦',r:true}];   // CHaSeD
 const ROWMAX = 27;
 function cardKey(f){ return f.v + '|' + f.s; }
 function isRed(f){ if(f.v==='Joker') return f.s==='J1'; const s=SUITS.find(x=>x.g===f.s); return s&&s.r; }
