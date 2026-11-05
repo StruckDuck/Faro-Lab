@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Faro Lab</title>
+<style>
+  :root{
+    --bg:#41504F; --panel:#34413f; --line:#5d6e6c; --cream:#e9dfc6; --cream-edge:#b9ad90;
+    --ink:#2b2622; --red:#8f2f27; --accent:#d8b36a; --text:#e8e2d0; --muted:#a9b5b2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,"Times New Roman",serif;padding:20px 20px 60px}
+  h1{font-size:26px;margin:0 0 4px;font-weight:normal;letter-spacing:.5px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .controls{display:flex;flex-wrap:wrap;gap:16px 24px;background:var(--panel);border:1px solid var(--line);padding:14px 16px;border-radius:6px;align-items:flex-end}
+  .ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+  input,select,button{font:inherit;font-size:15px;color:var(--text);background:#2a3534;border:1px solid var(--line);border-radius:4px;padding:6px 8px}
+  input[type=number]{width:90px}
+  input[type=text]{width:220px;text-transform:uppercase;letter-spacing:2px}
+  button{cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  .seg{display:flex}
+  .seg button{border-radius:0;margin-left:-1px}
+  .seg button:first-child{border-radius:4px 0 0 4px;margin-left:0}
+  .seg button:last-child{border-radius:0 4px 4px 0}
+  .seg button.on{background:var(--accent);color:#2b2622;border-color:var(--accent)}
+  .hide{display:none!important}
+  h2{font-size:17px;font-weight:normal;margin:26px 0 4px;color:var(--accent)}
+  .hint{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .spread{position:relative;overflow-x:auto;padding:4px 2px 8px}
+  .row{position:relative;height:96px;margin-bottom:10px}
+  .card{position:absolute;top:0;width:66px;height:92px;background:var(--cream);border:1px solid var(--cream-edge);border-radius:6px;color:var(--ink);box-shadow:-2px 1px 4px rgba(0,0,0,.35);user-select:none}
+  .card .idx{position:absolute;top:5px;left:5px;line-height:1.05;text-align:center;font-size:14px;min-width:20px}
+  .card .idx .v{display:block;font-weight:bold;font-size:15px}
+  .card .idx .s{display:block;font-size:15px}
+  .card.red .idx{color:var(--red)}
+  .card .pos{position:absolute;left:5px;bottom:4px;font-size:12px;color:#7d7459;line-height:1}
+  .savebar{display:flex;gap:10px;margin-top:14px}
+  .card.mid{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .clickable .card.picked{border-color:#8fc7e8;box-shadow:0 0 0 3px #8fc7e8}
+  .clickable .card.dropat{border-color:#fff;box-shadow:0 0 0 3px #fff}
+  .clickable .card.has{cursor:grab}
+  .ghost{position:fixed;z-index:2000;pointer-events:none;opacity:.88}
+  .ghost .card{position:static;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+  .ghost .badge{position:absolute;right:-8px;top:-8px;background:#8fc7e8;color:#1d2b2a;border-radius:11px;min-width:22px;height:22px;font-size:13px;line-height:22px;text-align:center;font-weight:bold}
+  .card .mk{position:absolute;left:5px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:bold;color:#7a5a14;line-height:1.1;max-width:30px;word-break:break-all}
+  h3{font-size:15px;font-weight:normal;margin:22px 0 2px;color:var(--accent)}
+  .warn{color:#f0a79f;font-size:13px;margin-top:4px}
+  .card.empty{opacity:.92}
+  .clickable .card{cursor:pointer}
+  .clickable .card:hover{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .card.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .seqline{font-size:14px;margin-top:12px;color:var(--text)}
+  .seqline b{color:var(--accent);font-weight:normal;letter-spacing:1px}
+  table{border-collapse:collapse;margin-top:6px;font-size:15px}
+  th,td{padding:5px 16px 5px 0;text-align:left}
+  th{color:var(--muted);font-weight:normal;font-size:13px;border-bottom:1px solid var(--line)}
+  td.r{color:#e0a59d}
+  .pop{position:fixed;z-index:1000;background:var(--panel);border:1px solid var(--accent);border-radius:6px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,.5);width:292px}
+  .pop .t{font-size:14px;margin-bottom:10px}
+  .pop .grid{display:grid;gap:5px}
+  .pop .vals{grid-template-columns:repeat(7,1fr)}
+  .pop .suits{grid-template-columns:repeat(4,1fr)}
+  .pop .jokers{grid-template-columns:repeat(2,1fr)}
+  .pop .gap{height:12px}
+  .pop .grid button{padding:7px 0;font-size:16px;text-align:center}
+  .pop .suits button{font-size:22px;padding:5px 0}
+  .pop .grid button.red{color:#e0a59d}
+  .pop .grid button.on{background:var(--accent);color:#2b2622;border-color:var(--accent)}
+  .pop .err{color:#f0a79f;font-size:13px;margin-top:10px}
+  .pop .foot{display:flex;justify-content:space-between;margin-top:12px}
+  .pop .foot button{font-size:13px;padding:4px 10px}
+
+  :root{
+    --bg:#41504F; --panel:#34413f; --line:#5d6e6c; --cream:#e9dfc6; --cream-edge:#b9ad90;
+    --ink:#2b2622; --red:#8f2f27; --accent:#d8b36a; --text:#e8e2d0; --muted:#a9b5b2;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:Georgia,"Times New Roman",serif;padding:20px 20px 60px}
+  h1{font-size:26px;margin:0 0 4px;font-weight:normal;letter-spacing:.5px}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:18px}
+  .controls{display:flex;flex-wrap:wrap;gap:16px 24px;background:var(--panel);border:1px solid var(--line);padding:14px 16px;border-radius:6px;align-items:flex-end}
+  .ctl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+  input,select,button{font:inherit;font-size:15px;color:var(--text);background:#2a3534;border:1px solid var(--line);border-radius:4px;padding:6px 8px}
+  input[type=number]{width:90px}
+  input[type=text]{width:220px;text-transform:uppercase;letter-spacing:2px}
+  button{cursor:pointer}
+  button:hover{border-color:var(--accent)}
+  .seg{display:flex}
+  .seg button{border-radius:0;margin-left:-1px}
+  .seg button:first-child{border-radius:4px 0 0 4px;margin-left:0}
+  .seg button:last-child{border-radius:0 4px 4px 0}
+  .seg button.on{background:var(--accent);color:#2b2622;border-color:var(--accent)}
+  .hide{display:none!important}
+  h2{font-size:17px;font-weight:normal;margin:26px 0 4px;color:var(--accent)}
+  .hint{font-size:13px;color:var(--muted);margin-bottom:10px}
+  .spread{position:relative;overflow-x:auto;padding:4px 2px 8px}
+  .spread.stale{opacity:.45}
+  .row{position:relative;height:96px;margin-bottom:10px}
+  .card{position:absolute;top:0;width:66px;height:92px;background:var(--cream);border:1px solid var(--cream-edge);border-radius:6px;color:var(--ink);box-shadow:-2px 1px 4px rgba(0,0,0,.35);user-select:none;touch-action:none}
+  .card .idx{position:absolute;top:5px;left:5px;line-height:1.05;text-align:center;font-size:14px;min-width:20px}
+  .card .idx .v{display:block;font-weight:bold;font-size:15px}
+  .card .idx .s{display:block;font-size:15px}
+  .card.red .idx{color:var(--red)}
+  .card.hl{background:#f3d98c;border-color:#c9a64a}
+  .card .pos{position:absolute;left:5px;bottom:4px;font-size:12px;color:#7d7459;line-height:1}
+  .clickable .card{cursor:pointer}
+  .clickable .card.has{cursor:grab}
+  .clickable .card:hover{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .card.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .clickable .card.picked{border-color:#8fc7e8;box-shadow:0 0 0 3px #8fc7e8}
+  .clickable .card.dropat{border-color:#fff;box-shadow:0 0 0 3px #fff}
+  .ghost{position:fixed;z-index:2000;pointer-events:none;opacity:.88}
+  .ghost .card{position:static;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+  .ghost .badge{position:absolute;right:-8px;top:-8px;background:#8fc7e8;color:#1d2b2a;border-radius:11px;min-width:22px;height:22px;font-size:13px;line-height:22px;text-align:center;font-weight:bold}
+  .midrow{display:flex;gap:16px;align-items:stretch;margin:18px 0 4px;flex-wrap:wrap}
+  .bank{flex:1;min-width:260px;border:1px dashed var(--line);border-radius:8px;padding:8px 12px 10px;background:rgba(0,0,0,.08)}
+  .bank.dropat{border-color:#fff;background:rgba(255,255,255,.08)}
+  .bank .bl{font-size:13px;color:var(--muted)}
+  .bankcards{display:flex;margin-top:6px;min-height:96px;overflow-x:auto;padding:2px 0 4px;align-items:flex-start}
+  .bankcards .card{position:relative;flex:none;margin-right:-36px;cursor:grab}
+  .bankcards .card:last-child{margin-right:0}
+  .bankcards .empty-note{color:var(--muted);font-size:13px;align-self:center}
+  .side{display:flex;flex-direction:column;justify-content:center;gap:8px}
+  button:disabled{opacity:.4;cursor:default}
+  button:disabled:hover{border-color:var(--line)}
+  .btnrow{display:flex;gap:8px}
+  .btnrow button{flex:1}
+  button.big{background:var(--accent);color:#2b2622;border-color:var(--accent);font-size:17px;padding:12px 26px}
+  .seqline{font-size:14px;color:var(--text)}
+  .seqline b{color:var(--accent);font-weight:normal;letter-spacing:1px}
+  .warn{color:#f0a79f;font-size:13px;margin-bottom:8px}
+  .pop{position:fixed;z-index:1000;background:var(--panel);border:1px solid var(--accent);border-radius:6px;padding:12px;box-shadow:0 6px 20px rgba(0,0,0,.5);width:292px}
+  .pop .t{font-size:14px;margin-bottom:10px}
+  .pop .grid{display:grid;gap:5px}
+  .pop .vals{grid-template-columns:repeat(7,1fr)}
+  .pop .suits{grid-template-columns:repeat(4,1fr)}
+  .pop .jokers{grid-template-columns:repeat(2,1fr)}
+  .pop .gap{height:12px}
+  .pop .grid button{padding:7px 0;font-size:16px;text-align:center}
+  .pop .suits button{font-size:22px;padding:5px 0}
+  .pop .grid button.red{color:#e0a59d}
+  .pop .grid button.on{background:var(--accent);color:#2b2622;border-color:var(--accent)}
+  .pop .err{color:#f0a79f;font-size:13px;margin-top:10px}
+  .pop .foot{display:flex;justify-content:space-between;margin-top:12px}
+  .pop .foot button{font-size:13px;padding:4px 10px}
+
+  .topbar{display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap;margin-bottom:14px}
+  .topbar h1{margin:0}
+  .tabs{display:flex}
+  .tabs button{border-radius:0;margin-left:-1px;padding:8px 26px;font-size:16px}
+  .tabs button:first-child{border-radius:6px 0 0 6px;margin-left:0}
+  .tabs button:last-child{border-radius:0 6px 6px 0}
+  .tabs button.on{background:var(--accent);color:#2b2622;border-color:var(--accent)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+  .toolbar .msg{font-size:13px;color:var(--accent)}
+  .editbanner{margin-top:10px;font-size:13px;color:var(--accent)}
+  .srow{display:flex;align-items:center;gap:12px;padding:8px 12px;border:1px solid var(--line);border-radius:6px;background:var(--panel);margin-bottom:8px}
+  .srow.editing{border-color:var(--accent)}
+  .sinfo{flex:1;min-width:0}
+  .sname{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .smeta{font-size:12px;color:var(--muted)}
+  .sbtns{display:flex;gap:6px}
+  .sbtns button,.srow button{font-size:13px;padding:4px 10px}
+  .snone{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .tgl{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);cursor:pointer;margin-left:8px}
+  .tgl input{width:auto}
+  .toolbar .tgl:first-child{margin-left:0}
+  .card.mid{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+  .card .mk{position:absolute;left:5px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:bold;color:#7a5a14;line-height:1.1;max-width:30px;word-break:break-all}
+  .pop.mp{width:300px}
+  .pop.wide{width:380px;max-height:70vh;overflow-y:auto}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>Faro Lab</h1>
+  <div class="tabs">
+    <button id="tabSetup" class="on">Setup</button>
+    <button id="tabLab">Experiment</button>
+  </div>
+</div>
+
+<div id="setupTab">
+<div class="sub">Pick where cards should end up. The app works out where they need to start.</div>
+
+<div class="controls">
+  <div class="ctl">Cards in deck
+    <input type="number" id="s-deckSize" value="54" min="2" max="500">
+  </div>
+  <div class="ctl">Shuffle type
+    <div class="seg" id="s-modeSeg">
+      <button data-m="I">All In</button>
+      <button data-m="O" class="on">All Out</button>
+      <button data-m="M">Mixed</button>
+    </div>
+  </div>
+  <div class="ctl" id="s-countWrap">Number of shuffles
+    <input type="number" id="s-count" value="6" min="0" max="100">
+  </div>
+  <div class="ctl hide" id="s-seqWrap">Sequence (I = In, O = Out, in order performed)
+    <input type="text" id="s-seq" value="IOOIIO" spellcheck="false">
+  </div>
+  <div class="ctl"><button id="s-saveDefaults">Save defaults</button></div>
+</div>
+
+<div class="toolbar">
+  <button id="s-undoBtn">Undo</button>
+  <button id="s-redoBtn">Redo</button>
+  <button id="s-resetBtn">Reset all</button>
+  <label class="tgl"><input type="checkbox" id="s-showMid" checked> Show midpoint cards</label>
+  <div class="seg" id="s-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button></div>
+</div>
+
+<h2>Ending Order</h2>
+<div class="hint">Click a position to assign a card. Drag assigned cards to move them. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
+<div class="spread clickable" id="s-endSpread"></div>
+
+<h2>Starting Order</h2>
+<div class="hint">Set the deck up like this before the shuffles. Position 1 is the top card. You can assign and move cards here too, and the Ending Order updates to match.</div>
+<div class="spread clickable" id="s-startSpread"></div>
+<div class="seqline" id="s-seqLine"></div>
+<div class="toolbar">
+  <button id="s-saveSetup">Save Setup</button>
+  <button id="s-saveNew" class="hide">Save as new</button>
+  <button id="s-stopEdit" class="hide">Stop editing</button>
+  <button id="s-toLab">Open in Experiment</button>
+  <button id="s-savePng">Export image</button>
+  <button id="s-saveTxt">Export list</button>
+  <span class="msg" id="s-saveMsg"></span>
+</div>
+<div class="editbanner hide" id="s-editBanner"></div>
+<h2>Saved setups</h2>
+<div id="s-savedList"></div>
+<div id="s-results"></div>
+
+<div class="pop hide" id="s-pop">
+  <div class="t" id="s-popTitle"></div>
+  <div class="grid vals" id="s-gridV"></div>
+  <div class="gap"></div>
+  <div class="grid suits" id="s-gridS"></div>
+  <div class="gap"></div>
+  <div class="grid jokers" id="s-gridJ"></div>
+  <div class="err" id="s-popErr"></div>
+  <div class="foot">
+    <button id="s-popClear">Clear</button>
+    <button id="s-popCancel">Close</button>
+  </div>
+</div>
+
+<div class="pop mp hide" id="s-toLabPanel">
+  <div class="t">Open this setup in Experiment as:</div>
+  <div class="foot" style="gap:8px;flex-wrap:wrap;justify-content:flex-start">
+    <button id="s-toLabStart">Starting Order</button>
+    <button id="s-toLabEnd">Ending Order</button>
+    <button id="s-toLabCancel">Cancel</button>
+  </div>
+</div>
+<div class="pop mp hide" id="s-mpPanel">
+  <div class="t">Also save the midpoint positions in the list?</div>
+  <div class="foot" style="gap:8px;flex-wrap:wrap;justify-content:flex-start">
+    <button id="s-mpYes">Save with midpoints</button>
+    <button id="s-mpNo">Save without</button>
+    <button id="s-mpCancel">Cancel</button>
+  </div>
+</div>
+
+</div>
+
+<div id="labTab" class="hide">
+<div class="sub">Set up the deck, then press Shuffle to run the shuffles on it.</div>
+
+<div class="controls">
+  <div class="ctl">Cards in deck
+    <input type="number" id="l-deckSize" value="54" min="1" max="500">
+  </div>
+  <div class="ctl">Shuffle type
+    <div class="seg" id="l-modeSeg">
+      <button data-m="I">All In</button>
+      <button data-m="O" class="on">All Out</button>
+      <button data-m="M">Mixed</button>
+    </div>
+  </div>
+  <div class="ctl" id="l-countWrap">Number of shuffles
+    <input type="number" id="l-count" value="6" min="0" max="100">
+  </div>
+  <div class="ctl hide" id="l-seqWrap">Sequence (I = In, O = Out, in order performed)
+    <input type="text" id="l-seq" value="IOOIIO" spellcheck="false">
+  </div>
+  <div class="ctl"><button id="l-saveDefaults">Save defaults</button></div>
+</div>
+
+<div class="toolbar">
+  <label class="tgl"><input type="checkbox" id="l-showMid" checked> Show midpoint cards</label>
+  <div class="seg" id="l-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button></div>
+</div>
+
+<h2>Deck</h2>
+<div class="hint">Click a card to assign a face. Drag cards to move them. Every card keeps the number it started with, so after a shuffle you can see where each one came from. Drag to the bank to remove it. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
+<div class="spread clickable" id="l-deckSpread"></div>
+
+<div class="midrow">
+  <div class="bank" id="l-bank">
+    <div class="bl">Bank (drop cards here to remove them from the deck, drag them back to restore)</div>
+    <div class="bankcards" id="l-bankCards"></div>
+  </div>
+  <div class="side">
+    <button class="big" id="l-shuffleBtn">Shuffle</button>
+    <div class="btnrow"><button id="l-undoBtn">Undo</button><button id="l-redoBtn">Redo</button></div>
+    <button id="l-hlBtn" disabled>Highlight selected</button>
+    <button id="l-renumberBtn">Renumber</button>
+    <button id="l-resetBtn">Reset all</button>
+    <button id="l-importBtn">Import setup</button>
+    <div class="seqline" id="l-seqLine"></div>
+  </div>
+</div>
+
+<div class="pop hide" id="l-pop">
+  <div class="t" id="l-popTitle"></div>
+  <div class="grid vals" id="l-gridV"></div>
+  <div class="gap"></div>
+  <div class="grid suits" id="l-gridS"></div>
+  <div class="gap"></div>
+  <div class="grid jokers" id="l-gridJ"></div>
+  <div class="err" id="l-popErr"></div>
+  <div class="foot">
+    <button id="l-popClear">Clear face</button>
+    <button id="l-popCancel">Close</button>
+  </div>
+</div>
+
+<div class="pop wide hide" id="l-importPanel">
+  <div class="t">Import a saved setup into Experiment, laid out as its Starting Order or its Ending Order</div>
+  <div id="l-importList"></div>
+  <div class="foot"><span></span><button id="l-importClose">Close</button></div>
+</div>
+
+</div>
+
+<script>
+
+// ===== shared logic =====
+
+// Positions are 1-based, 1 = top of deck.
+// Out shuffle: top card stays on top. Top packet size = ceil(N/2).
+// In shuffle: top card goes to position 2. Top packet size = floor(N/2).
+// (For an even deck both packets are equal. For an odd deck the larger packet
+// is the one that makes the interleave alternate perfectly.)
+function packet(type, N){ return type==='O' ? Math.ceil(N/2) : Math.floor(N/2); }
+function fwd(p, type, N){
+  const h = packet(type, N);
+  if(type==='O') return p<=h ? 2*p-1 : 2*(p-h);
+  return p<=h ? 2*p : 2*(p-h)-1;
+}
+function invOne(q, type, N){
+  const h = packet(type, N);
+  if(type==='O') return q%2===1 ? (q+1)/2 : h+q/2;
+  return q%2===0 ? q/2 : h+(q+1)/2;
+}
+// Where a card must start so that after seq (array of 'I'/'O' in order performed) it ends at target.
+function startFor(target, seq, N){
+  let p = target;
+  for(let i=seq.length-1;i>=0;i--) p = invOne(p, seq[i], N);
+  return p;
+}
+function endFor(start, seq, N){
+  let p = start;
+  for(let i=0;i<seq.length;i++) p = fwd(p, seq[i], N);
+  return p;
+}
+// Midpoint: for each shuffle performed, the starting position of the card that sits at the
+// cut (the last card of the top packet) just before that shuffle.
+function midpoints(seq, N, which){
+  const out = [];
+  for(let k=0;k<seq.length;k++){
+    const cut = packet(seq[k], N);
+    const pos = which === 'top' ? cut + 1 : cut;   // last card of the top half, or first card of the bottom half
+    if(pos < 1 || pos > N) continue;
+    out.push({n:k+1, type:seq[k], cut, pos, start:startFor(pos, seq.slice(0,k), N)});
+  }
+  return out;
+}
+// Perform one shuffle on an array of cards (index 0 = top).
+function shuffleOnce(arr, type){
+  const n = arr.length, out = new Array(n);
+  for(let i=0;i<n;i++) out[fwd(i+1, type, n)-1] = arr[i];
+  return out;
+}
+// Take the cards at 1-based slots `slots` out of `deck` and re-insert them as a block
+// so the first of them lands at slot q (clamped). Everything else keeps its order.
+function moveInsert(deck, slots, q){
+  slots = slots.slice().sort((a,b)=>a-b);
+  const set = new Set(slots), m = slots.length;
+  const moved = slots.map(s => deck[s-1]);
+  const rest = deck.filter((_, i) => !set.has(i+1));
+  q = Math.max(1, Math.min(deck.length - m + 1, q));
+  const out = rest.slice(0, q-1).concat(moved, rest.slice(q-1));
+  return {out, newSlots: moved.map((_, i) => q + i)};
+}
+
+function seqFrom(mode, count, seqStr){
+  if(mode === 'M') return String(seqStr).toUpperCase().replace(/[^IO]/g, '').split('');
+  const n = Math.max(0, Math.min(100, parseInt(count, 10) || 0));
+  return Array(n).fill(mode);
+}
+const VALUES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const SUITS = [{n:'Spades',g:'♠',r:false},{n:'Hearts',g:'♥',r:true},{n:'Diamonds',g:'♦',r:true},{n:'Clubs',g:'♣',r:false}];
+const ROWMAX = 27;
+function cardKey(f){ return f.v + '|' + f.s; }
+function isRed(f){ if(f.v==='Joker') return f.s==='J1'; const s=SUITS.find(x=>x.g===f.s); return s&&s.r; }
+function cardLabel(f){
+  if(f.v==='Joker') return f.s==='J1' ? 'Joker (red)' : 'Joker (black)';
+  return f.v + ' of ' + SUITS.find(x=>x.g===f.s).n;
+}
+function cardCorner(f){
+  if(f.v==='Joker') return {v:'JK', s: f.s==='J1' ? 'R' : 'B'};
+  return {v:f.v, s:f.s};
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function describeSetup(st){
+  const seq = seqFrom(st.mode, st.count, st.seq);
+  const sh = st.mode === 'M' ? (seq.length ? seq.map(x => x==='I' ? 'In' : 'Out').join(' ') : 'no shuffles')
+    : (seq.length ? (st.mode==='I' ? 'In' : 'Out') + ' x' + seq.length : 'no shuffles');
+  return st.N + ' cards, ' + sh + ', ' + st.assign.length + ' placed';
+}
+
+// ===== saved setups store =====
+const Store = (function(){
+  const KEY = 'faroSetups.v1';
+  let list = [], persistent = true, subs = [];
+  try{ const raw = localStorage.getItem(KEY); list = raw ? JSON.parse(raw) : []; if(!Array.isArray(list)) list = []; }
+  catch(e){ list = []; persistent = false; }
+  function save(){
+    try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){ persistent = false; }
+    subs.forEach(f => f());
+  }
+  const clone = o => JSON.parse(JSON.stringify(o));
+  return {
+    all: () => list,
+    get: id => list.find(s => s.id === id) || null,
+    add(name, st){ const id = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); list.push({id, name, st: clone(st)}); save(); return id; },
+    update(id, st){ const s = list.find(x => x.id === id); if(s){ s.st = clone(st); save(); } },
+    rename(id, name){ const s = list.find(x => x.id === id); if(s){ s.name = name; save(); } },
+    remove(id){ list = list.filter(s => s.id !== id); save(); },
+    persistent: () => persistent,
+    onChange(f){ subs.push(f); }
+  };
+})();
+
+const MidPref = (function(){
+  const KEY = 'faroMid.v1';
+  let st = {show:true, which:'bottom'};
+  const subs = [];
+  try{ const r = JSON.parse(localStorage.getItem(KEY)); if(r){ st.show = r.show !== false; st.which = r.which === 'top' ? 'top' : 'bottom'; } }catch(e){}
+  return {
+    show: () => st.show,
+    which: () => st.which,
+    set(show, which){
+      st = {show: show !== false, which: which === 'top' ? 'top' : 'bottom'};
+      try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){}
+      subs.forEach(f => f());
+    },
+    onChange(f){ subs.push(f); }
+  };
+})();
+
+const Defaults = (function(){
+  const KEY = 'faroDefaults.v1';
+  const factory = {N:54, mode:'O', count:'6', seq:'IOOIIO'};
+  let all = {};
+  try{ all = JSON.parse(localStorage.getItem(KEY)) || {}; }catch(e){ all = {}; }
+  function clean(d){
+    const N = Math.max(1, Math.min(500, parseInt(d && d.N, 10) || factory.N));
+    const mode = d && /^[IOM]$/.test(d.mode) ? d.mode : factory.mode;
+    const count = d && d.count !== undefined && d.count !== '' ? String(d.count) : factory.count;
+    const seq = d && typeof d.seq === 'string' ? d.seq : factory.seq;
+    return {N, mode, count, seq};
+  }
+  return {
+    get(tab){ return all[tab] ? clean(all[tab]) : Object.assign({}, factory); },
+    set(tab, d){
+      all[tab] = clean(d);
+      try{ localStorage.setItem(KEY, JSON.stringify(all)); return true; }catch(e){ return false; }
+    }
+  };
+})();
+function flashButton(b, text){
+  if(!b.dataset.label) b.dataset.label = b.textContent;
+  b.textContent = text;
+  clearTimeout(b._t);
+  b._t = setTimeout(() => { b.textContent = b.dataset.label; }, 1600);
+}
+
+let currentTab = 'setup';
+
+const SetupApp = (function(){
+const $ = id => document.getElementById('s-' + id);
+
+let N = 54, mode = 'O', assign = {}; // assign[pos] = {v, s}  (s = suit glyph, or 'J1'/'J2' for jokers)
+let activePos = null, activeList = null;
+let basis = 'end'; // which list `assign` is keyed by: 'end' or 'start'. The last list you edited stays fixed when the shuffles change.
+let selList = 'end';
+
+
+function getSeq(){ return seqFrom(mode, $('count').value, $('seq').value); }
+
+function renderSpread(el, getCard, onClick, activeIdx, marks, picked){
+  el.innerHTML = '';
+  const W = 66;
+  const rows = Math.ceil(N / ROWMAX);
+  const rowLen = Math.min(N, ROWMAX);
+  const avail = Math.max(300, el.clientWidth - 8);
+  let step = rowLen > 1 ? Math.floor((avail - W) / (rowLen - 1)) : W;
+  step = Math.max(26, Math.min(W, step));
+  for(let r=0;r<rows;r++){
+    const row = document.createElement('div');
+    row.className = 'row';
+    const first = r*ROWMAX + 1;
+    const last = Math.min(N, first + ROWMAX - 1);
+    row.style.width = ((last-first)*step + W + 4) + 'px';
+    for(let p=first;p<=last;p++){
+      const c = getCard(p);
+      const d = document.createElement('div');
+      d.className = 'card';
+      d.style.left = ((p-first)*step) + 'px';
+      d.style.zIndex = p;
+      d.dataset.pos = p;
+      const idx = document.createElement('div');
+      idx.className = 'idx';
+      if(c){
+        const k = cardCorner(c);
+        if(isRed(c)) d.classList.add('red');
+        idx.innerHTML = '<span class="v">'+k.v+'</span><span class="s">'+k.s+'</span>';
+      } else {
+        d.classList.add('empty');
+      }
+      if(c) d.classList.add('has');
+      if(picked && picked.has(p)) d.classList.add('picked');
+      if(activeIdx===p) d.classList.add('sel');
+      d.appendChild(idx);
+      const pn = document.createElement('div');
+      pn.className = 'pos';
+      pn.textContent = p;
+      d.appendChild(pn);
+      if(marks && marks[p]){
+        d.classList.add('mid');
+        const mk = document.createElement('div');
+        mk.className = 'mk';
+        mk.textContent = marks[p].map(n => 'M' + n).join(' ');
+        d.appendChild(mk);
+      }
+      if(onClick) d.addEventListener('click', e => onClick(p, d, e));
+      row.appendChild(d);
+    }
+    el.appendChild(row);
+  }
+}
+
+function markMap(mids){
+  const m = {};
+  mids.forEach(x => { (m[x.start] = m[x.start] || []).push(x.n); });
+  return m;
+}
+// Both lists derived from the master assignment.
+function view(seq){
+  const end = {}, start = {};
+  Object.keys(assign).forEach(k => {
+    const p = +k;
+    if(p > N) return;
+    if(basis === 'end'){ end[p] = assign[k]; start[startFor(p, seq, N)] = assign[k]; }
+    else { start[p] = assign[k]; end[endFor(p, seq, N)] = assign[k]; }
+  });
+  return {end, start};
+}
+// Re-key the master assignment so it is stored by positions in `list` (no change to what either list shows).
+function ensureBasis(list){
+  if(basis === list) return;
+  const seq = getSeq(), next = {};
+  Object.keys(assign).forEach(k => {
+    const p = +k;
+    next[list === 'end' ? endFor(p, seq, N) : startFor(p, seq, N)] = assign[k];
+  });
+  assign = next;
+  basis = list;
+}
+function recompute(){
+  const seq = getSeq();
+  const v = view(seq);
+  sel.forEach(p => { if(!v[selList][p] || p > N) sel.delete(p); });
+  ['end','start'].forEach(list => {
+    const el = $(list + 'Spread');
+    renderSpread(el, p => v[list][p], (p, d, e) => onCardClick(list, p, d, e),
+      activeList === list ? activePos : null,
+      list === 'start' && showMid ? markMap(midpoints(seq, N, midWhich)) : null,
+      selList === list ? sel : null);
+    el.querySelectorAll('.card.has').forEach(d => d.addEventListener('pointerdown', e => pressStart(list, +d.dataset.pos, d, e)));
+  });
+  const mids = midpoints(seq, N, midWhich);
+  $('seqLine').innerHTML = !seq.length ? 'No shuffles. Starting and ending positions are the same.'
+    : (mode === 'M' ? 'Shuffles in order: <b>' + seq.map(x => x==='I' ? 'In' : 'Out').join(', ') + '</b>' : '');
+  let h = '';
+  if(showMid && mids.length){
+    const warns = [];
+    const seen = {};
+    mids.forEach(m=>{
+      if(v.start[m.start]) warns.push('M'+m.n+' (position '+m.start+') is where '+cardLabel(v.start[m.start])+' starts.');
+      (seen[m.start] = seen[m.start] || []).push(m.n);
+    });
+    Object.keys(seen).forEach(k=>{ if(seen[k].length>1) warns.push('M'+seen[k].join(' and M')+' share position '+k+'.'); });
+    warns.forEach(w => { h += '<div class="warn">'+w+'</div>'; });
+  }
+  $('results').innerHTML = h;
+}
+
+// ----- selection and dragging -----
+let sel = new Set(), anchor = null, suppressClick = false;
+
+// Pure: move the cards at positions `moving` by `offset` (clamped to stay inside the deck).
+// A card already sitting on a destination is displaced into a spot the moving group vacated,
+// so no card is ever lost.
+function applyMove(assignObj, moving, offset, N){
+  moving = moving.slice().sort((a,b)=>a-b);
+  offset = Math.max(1 - moving[0], Math.min(N - moving[moving.length-1], offset));
+  if(offset === 0) return {next: assignObj, moved: moving, offset: 0};
+  const S = new Set(moving), D = new Set(moving.map(s => s + offset));
+  const displaced = [];
+  D.forEach(d => { if(!S.has(d) && assignObj[d]) displaced.push({pos:d, card:assignObj[d]}); });
+  displaced.sort((a,b)=>a.pos-b.pos);
+  const vacated = moving.filter(s => !D.has(s));
+  const next = Object.assign({}, assignObj);
+  moving.forEach(s => delete next[s]);
+  displaced.forEach((x,i) => { next[vacated[i]] = x.card; });
+  moving.forEach(s => { next[s + offset] = assignObj[s]; });
+  return {next, moved: moving.map(s => s + offset), offset};
+}
+
+function hidePop(){ activePos = null; activeList = null; $('pop').classList.add('hide'); closeMp(); }
+
+function onCardClick(list, p, el, e){
+  if(suppressClick) return;
+  e.stopPropagation();
+  const map = view(getSeq())[list];
+  const mod = e.ctrlKey || e.metaKey, shift = e.shiftKey;
+  if(mod || shift){
+    if(selList !== list){ sel = new Set(); anchor = null; selList = list; }
+    if(shift){
+      const a = anchor === null ? p : anchor;
+      const lo = Math.min(a, p), hi = Math.max(a, p);
+      if(!mod) sel = new Set();
+      for(let q=lo;q<=hi;q++) if(map[q]) sel.add(q);
+    } else {
+      if(!map[p]) return;
+      if(sel.has(p)) sel.delete(p); else sel.add(p);
+      anchor = p;
+    }
+    hidePop();
+    recompute();
+    return;
+  }
+  sel = new Set();
+  selList = list;
+  anchor = p;
+  openPop(list, p, el, e);
+}
+
+function pressStart(list, p, el, e){
+  const map0 = view(getSeq())[list];
+  if(e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || !map0[p]) return;
+  const sx = e.clientX, sy = e.clientY;
+  const box = el.getBoundingClientRect();
+  const grabX = sx - box.left, grabY = sy - box.top;
+  const spreadSel = '#s-' + list + 'Spread';
+  let dragging = false, ghost = null, moving = null;
+
+  function clearDrop(){ document.querySelectorAll(spreadSel + ' .dropat').forEach(x => x.classList.remove('dropat')); }
+  function overPos(ev){
+    const u = document.elementFromPoint(ev.clientX, ev.clientY);
+    const c = u && u.closest ? u.closest(spreadSel + ' .card') : null;
+    return c ? +c.dataset.pos : null;
+  }
+  function onMove(ev){
+    if(!dragging){
+      if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
+      dragging = true;
+      hidePop();
+      moving = (selList === list && sel.has(p)) ? Array.from(sel).sort((a,b)=>a-b) : [p];
+      ghost = document.createElement('div');
+      ghost.className = 'ghost';
+      const clone = el.cloneNode(true);
+      clone.classList.remove('picked','sel','mid','dropat');
+      ghost.appendChild(clone);
+      if(moving.length > 1){
+        const b = document.createElement('div');
+        b.className = 'badge';
+        b.textContent = moving.length;
+        ghost.appendChild(b);
+      }
+      document.body.appendChild(ghost);
+    }
+    ghost.style.left = (ev.clientX - grabX) + 'px';
+    ghost.style.top = (ev.clientY - grabY) + 'px';
+    clearDrop();
+    const over = overPos(ev);
+    if(over !== null){
+      const lo = moving[0], hi = moving[moving.length-1];
+      const off = Math.max(1 - lo, Math.min(N - hi, over - p));
+      moving.forEach(s => {
+        const d = document.querySelector(spreadSel + ' .card[data-pos="' + (s + off) + '"]');
+        if(d) d.classList.add('dropat');
+      });
+    }
+  }
+  function onUp(ev){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onUp);
+    if(!dragging) return;
+    clearDrop();
+    if(ghost) ghost.remove();
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 60);
+    const over = overPos(ev);
+    if(over !== null){
+      const map = view(getSeq())[list];
+      const r = applyMove(map, moving, over - p, N);
+      if(r.offset !== 0) commit();
+      assign = r.next;
+      basis = list;
+      sel = new Set(r.moved);
+      selList = list;
+      anchor = null;
+    }
+    recompute();
+  }
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onUp);
+}
+
+// ----- popover -----
+let pickV = null, pickS = null;
+function buildPop(){
+  $('gridV').innerHTML = VALUES.map(v=>'<button data-v="'+v+'">'+v+'</button>').join('');
+  $('gridS').innerHTML = SUITS.map(s=>'<button data-s="'+s.g+'" class="'+(s.r?'red':'')+'">'+s.g+'</button>').join('');
+  $('gridJ').innerHTML = '<button data-j="J1" class="red">Joker R</button><button data-j="J2">Joker B</button>';
+  $('gridV').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ pickV=b.dataset.v; tryAssign(); }));
+  $('gridS').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ pickS=b.dataset.s; tryAssign(); }));
+  $('gridJ').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ finish({v:'Joker', s:b.dataset.j}); }));
+}
+function paintPop(){
+  $('gridV').querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v===pickV));
+  $('gridS').querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.s===pickS));
+}
+function tryAssign(){
+  $('popErr').textContent = '';
+  paintPop();
+  if(pickV && pickS) finish({v:pickV, s:pickS});
+}
+function finish(c){
+  const before = snapS();
+  ensureBasis(activeList);
+  for(const k of Object.keys(assign)){
+    if(+k !== activePos && cardKey(assign[k]) === cardKey(c)){
+      $('popErr').textContent = cardLabel(c) + ' is already at position ' + k + '.';
+      pickV = null; pickS = null; paintPop();
+      return;
+    }
+  }
+  commit(before);
+  assign[activePos] = c;
+  closePop();
+}
+function openPop(list, pos, el, e){
+  if(e) e.stopPropagation();
+  activePos = pos;
+  activeList = list;
+  pickV = null; pickS = null;
+  const cur = view(getSeq())[list][pos];
+  $('popTitle').textContent = (list === 'end' ? 'Ending Order' : 'Starting Order') + ', position ' + pos + (cur ? '  (now ' + cardLabel(cur) + ')' : '');
+  $('popErr').textContent = '';
+  $('popClear').classList.toggle('hide', !cur);
+  paintPop();
+  const pop = $('pop');
+  pop.classList.remove('hide');
+  const r = el.getBoundingClientRect();
+  const ph = pop.offsetHeight, pw = pop.offsetWidth;
+  let left = Math.min(window.innerWidth - pw - 8, Math.max(8, r.left));
+  let top = r.bottom + 8;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+  recompute();
+}
+function closePop(){
+  activePos = null;
+  activeList = null;
+  $('pop').classList.add('hide');
+  recompute();
+}
+$('popClear').addEventListener('click', () => { commit(); ensureBasis(activeList); delete assign[activePos]; closePop(); });
+$('popCancel').addEventListener('click', closePop);
+$('pop').addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', e => {
+  if(currentTab !== 'setup') return;
+  closeMp();
+  if(activePos){ closePop(); return; }
+  if(sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
+});
+buildPop();
+
+// ----- saving -----
+function snapshot(){
+  const seq = getSeq();
+  const v = view(seq);
+  const rows = Object.keys(v.end).map(Number).map(t => ({card:v.end[t], target:t, start:startFor(t, seq, N)}));
+  rows.sort((a,b)=>a.start-b.start);
+  return {seq, rows, end: v.end, startAssign: v.start, mids: midpoints(seq, N, midWhich), names: seq.map(x => x==='I' ? 'In' : 'Out')};
+}
+function download(blob, name){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function saveTxt(includeMid){
+  const s = snapshot();
+  let out = 'Faro Setup\n';
+  out += 'Deck: ' + N + ' cards\n';
+  out += shuffleLine() + '\n\n';
+  if(!s.rows.length){ out += 'No cards assigned.\n'; }
+  else {
+    const w = Math.max(4, ...s.rows.map(r => cardLabel(r.card).length));
+    out += 'Card'.padEnd(w + 2) + 'Starts at'.padEnd(11) + 'Ends at\n';
+    s.rows.forEach(r => { out += cardLabel(r.card).padEnd(w + 2) + String(r.start).padEnd(11) + r.target + '\n'; });
+  }
+  if(includeMid && s.mids.length){
+    out += '\nMidpoint: ' + midLabel() + ' (key card starting positions)\n';
+    s.mids.forEach(m => { out += 'Before shuffle ' + m.n + ' (' + (m.type==='I'?'In':'Out') + '): position ' + m.start + '\n'; });
+  }
+  download(new Blob([out], {type:'text/plain'}), 'faro-setup.txt');
+}
+function rrect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+function savePng(){
+  const s = snapshot();
+  const W = 66, H = 92, step = 40, pad = 30, F = 'Georgia, "Times New Roman", serif';
+  const rowLen = Math.min(N, ROWMAX), nRows = Math.ceil(N / ROWMAX);
+  const width = Math.max(640, pad * 2 + (rowLen - 1) * step + W);
+  const spreadH = nRows * (H + 14);
+  const listH = (s.rows.length ? (s.rows.length + 1) * 24 + 10 : 24) + (showMid && s.mids.length ? 32 + s.mids.length * 24 + 16 : 0);
+  const height = pad + 34 + 26 + 2 * (32 + spreadH) + 32 + listH + pad;
+  const scale = 2;
+  const cv = document.createElement('canvas');
+  cv.width = width * scale; cv.height = height * scale;
+  const ctx = cv.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.fillStyle = '#41504F';
+  ctx.fillRect(0, 0, width, height);
+  ctx.textBaseline = 'alphabetic';
+  let y = pad;
+  ctx.fillStyle = '#e8e2d0'; ctx.font = '26px ' + F;
+  ctx.fillText('Faro Setup', pad, y + 24);
+  y += 34;
+  ctx.fillStyle = '#a9b5b2'; ctx.font = '14px ' + F;
+  ctx.fillText(N + ' cards.  ' + shuffleLine(), pad, y + 14);
+  y += 26;
+
+  const marks = showMid ? markMap(s.mids) : null;
+  function spread(title, getCard, mk){
+    ctx.fillStyle = '#d8b36a'; ctx.font = '17px ' + F;
+    ctx.fillText(title, pad, y + 20);
+    y += 32;
+    for(let r = 0; r < nRows; r++){
+      const first = r * ROWMAX + 1, last = Math.min(N, first + ROWMAX - 1);
+      for(let p = first; p <= last; p++){
+        const cx = pad + (p - first) * step, c = getCard(p);
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 4; ctx.shadowOffsetX = -2; ctx.shadowOffsetY = 1;
+        rrect(ctx, cx, y, W, H, 6);
+        ctx.fillStyle = '#e9dfc6'; ctx.fill();
+        ctx.restore();
+        rrect(ctx, cx + .5, y + .5, W - 1, H - 1, 6);
+        ctx.strokeStyle = '#b9ad90'; ctx.lineWidth = 1; ctx.stroke();
+        if(c){
+          const k = cardCorner(c);
+          ctx.fillStyle = isRed(c) ? '#8f2f27' : '#2b2622';
+          ctx.textAlign = 'center';
+          ctx.font = 'bold 15px ' + F; ctx.fillText(k.v, cx + 15, y + 20);
+          ctx.font = '15px ' + F; ctx.fillText(k.s, cx + 15, y + 37);
+          ctx.textAlign = 'left';
+        }
+        if(mk && mk[p]){
+          rrect(ctx, cx + 1, y + 1, W - 2, H - 2, 6);
+          ctx.strokeStyle = '#d8b36a'; ctx.lineWidth = 2.5; ctx.stroke();
+          ctx.fillStyle = '#7a5a14'; ctx.font = 'bold 11px ' + F;
+          ctx.fillText(mk[p].map(n => 'M' + n).join(' '), cx + 5, y + H / 2 + 4);
+        }
+        ctx.fillStyle = '#7d7459'; ctx.font = '12px ' + F;
+        ctx.fillText(String(p), cx + 5, y + H - 5);
+      }
+      y += H + 14;
+    }
+  }
+  spread('Ending Order', p => s.end[p]);
+  spread('Starting Order', p => s.startAssign[p], marks);
+
+  ctx.fillStyle = '#d8b36a'; ctx.font = '17px ' + F;
+  ctx.fillText('Setup list', pad, y + 20);
+  y += 32;
+  if(!s.rows.length){
+    ctx.fillStyle = '#a9b5b2'; ctx.font = '15px ' + F;
+    ctx.fillText('No cards assigned.', pad, y + 16);
+  } else {
+    ctx.fillStyle = '#a9b5b2'; ctx.font = '13px ' + F;
+    ctx.fillText('Card', pad, y + 14); ctx.fillText('Starts at', pad + 240, y + 14); ctx.fillText('Ends at', pad + 340, y + 14);
+    y += 24;
+    ctx.font = '15px ' + F;
+    s.rows.forEach(r => {
+      ctx.fillStyle = isRed(r.card) ? '#e0a59d' : '#e8e2d0';
+      ctx.fillText(cardLabel(r.card), pad, y + 14);
+      ctx.fillStyle = '#e8e2d0';
+      ctx.fillText(String(r.start), pad + 240, y + 14);
+      ctx.fillText(String(r.target), pad + 340, y + 14);
+      y += 24;
+    });
+  }
+  if(showMid && s.mids.length){
+    y += 8;
+    ctx.fillStyle = '#d8b36a'; ctx.font = '17px ' + F;
+    ctx.fillText('Midpoint, ' + midLabel() + ' (key card starting positions)', pad, y + 20);
+    y += 32;
+    ctx.fillStyle = '#e8e2d0'; ctx.font = '15px ' + F;
+    s.mids.forEach(m => {
+      ctx.fillText('M' + m.n + '  before shuffle ' + m.n + ' (' + (m.type==='I'?'In':'Out') + '): position ' + m.start, pad, y + 14);
+      y += 24;
+    });
+  }
+  cv.toBlob(b => download(b, 'faro-setup.png'), 'image/png');
+}
+$('savePng').addEventListener('click', savePng);
+
+// ----- controls -----
+$('deckSize').addEventListener('input', () => {
+  const v = parseInt($('deckSize').value, 10);
+  if(!v || v < 2) return;
+  if(Math.min(500, v) === N) return;
+  commit();
+  N = Math.min(500, v);
+  Object.keys(assign).forEach(k => { if(+k > N) delete assign[k]; });
+  if(activePos && activePos > N) closePop(); else recompute();
+});
+document.querySelectorAll('#s-modeSeg button').forEach(b => b.addEventListener('click', () => {
+  mode = b.dataset.m;
+  document.querySelectorAll('#s-modeSeg button').forEach(x => x.classList.toggle('on', x===b));
+  $('countWrap').classList.toggle('hide', mode==='M');
+  $('seqWrap').classList.toggle('hide', mode!=='M');
+  recompute();
+}));
+$('count').addEventListener('input', recompute);
+$('seq').addEventListener('input', recompute);
+window.addEventListener('resize', () => { if(currentTab === 'setup') recompute(); });
+document.addEventListener('keydown', e => {
+  if(currentTab !== 'setup') return;
+  const typing = e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  if((e.ctrlKey || e.metaKey) && !typing){
+    const k = e.key.toLowerCase();
+    if(k === 'z' && !e.shiftKey){ e.preventDefault(); undo(); return; }
+    if(k === 'y' || (k === 'z' && e.shiftKey)){ e.preventDefault(); redo(); return; }
+  }
+  if(e.key!=='Escape') return;
+  if(!$('mpPanel').classList.contains('hide')){ closeMp(); return; }
+  if(activePos) closePop(); else if(sel.size){ sel = new Set(); recompute(); }
+});
+
+
+// ----- undo / redo (covers the assigned cards and deck size, not the other options) -----
+let undoStack = [], redoStack = [];
+function snapS(){
+  return {N, basis, assign: Object.keys(assign).map(k => [+k, {v:assign[k].v, s:assign[k].s}])};
+}
+function commit(s){
+  undoStack.push(s || snapS());
+  if(undoStack.length > 300) undoStack.shift();
+  redoStack = [];
+  updateHistoryButtons();
+}
+function restoreS(st){
+  N = st.N; basis = st.basis; assign = {};
+  st.assign.forEach(([p, c]) => { assign[p] = {v:c.v, s:c.s}; });
+  $('deckSize').value = N;
+  sel = new Set(); anchor = null;
+  hidePop();
+  recompute();
+  updateHistoryButtons();
+}
+function undo(){ if(!undoStack.length) return; redoStack.push(snapS()); restoreS(undoStack.pop()); }
+function redo(){ if(!redoStack.length) return; undoStack.push(snapS()); restoreS(redoStack.pop()); }
+function updateHistoryButtons(){
+  $('undoBtn').disabled = !undoStack.length;
+  $('redoBtn').disabled = !redoStack.length;
+}
+$('undoBtn').addEventListener('click', undo);
+$('redoBtn').addEventListener('click', redo);
+
+// ----- defaults and reset -----
+function applyDefaults(d){
+  N = d.N; mode = d.mode;
+  document.querySelectorAll('#s-modeSeg button').forEach(x => x.classList.toggle('on', x.dataset.m === mode));
+  $('countWrap').classList.toggle('hide', mode === 'M');
+  $('seqWrap').classList.toggle('hide', mode !== 'M');
+  $('count').value = d.count;
+  $('seq').value = d.seq;
+  $('deckSize').value = N;
+}
+$('saveDefaults').addEventListener('click', () => {
+  const ok = Defaults.set('setup', {N, mode, count: $('count').value, seq: $('seq').value});
+  flashButton($('saveDefaults'), ok ? 'Defaults saved' : 'Could not save');
+});
+$('resetBtn').addEventListener('click', () => {
+  if(!window.confirm('Reset everything? This clears all assigned cards and returns the options to your saved defaults.')) return;
+  commit();
+  assign = {}; basis = 'end';
+  applyDefaults(Defaults.get('setup'));
+  editingId = null;
+  sel = new Set(); anchor = null;
+  hidePop();
+  renderSaved();
+  recompute();
+});
+
+// ----- midpoints: toggle and optional save -----
+var showMid = MidPref.show(), midWhich = MidPref.which();
+function syncMidUI(){
+  showMid = MidPref.show(); midWhich = MidPref.which();
+  $('showMid').checked = showMid;
+  $('midWhich').classList.toggle('hide', !showMid);
+  document.querySelectorAll('#s-midWhich button').forEach(x => x.classList.toggle('on', x.dataset.w === midWhich));
+}
+function midLabel(){ return midWhich === 'top' ? 'top of 2/2' : 'bottom of 1/2'; }
+$('showMid').addEventListener('change', () => MidPref.set($('showMid').checked, midWhich));
+document.querySelectorAll('#s-midWhich button').forEach(b => b.addEventListener('click', () => MidPref.set(showMid, b.dataset.w)));
+MidPref.onChange(() => { syncMidUI(); if(currentTab === 'setup') recompute(); });
+syncMidUI();
+function shuffleLine(){
+  const seq = getSeq();
+  if(!seq.length) return 'Shuffles: none';
+  if(mode === 'M') return 'Shuffles in order: ' + seq.map(x => x==='I' ? 'In' : 'Out').join(', ');
+  return 'Shuffles: All ' + (mode === 'I' ? 'In' : 'Out') + ', ' + seq.length + (seq.length === 1 ? ' shuffle' : ' shuffles');
+}
+function closeMp(){ $('mpPanel').classList.add('hide'); }
+function openMp(e){
+  e.stopPropagation();
+  const p = $('mpPanel');
+  p.classList.remove('hide');
+  const r = $('saveTxt').getBoundingClientRect();
+  const pw = p.offsetWidth, ph = p.offsetHeight;
+  p.style.left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left)) + 'px';
+  let top = r.bottom + 8;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
+  p.style.top = top + 'px';
+}
+$('saveTxt').addEventListener('click', e => {
+  if(!getSeq().length){ saveTxt(false); return; }
+  openMp(e);
+});
+$('mpYes').addEventListener('click', () => { closeMp(); saveTxt(true); });
+$('mpNo').addEventListener('click', () => { closeMp(); saveTxt(false); });
+$('mpCancel').addEventListener('click', closeMp);
+$('mpPanel').addEventListener('click', e => e.stopPropagation());
+
+// ----- saved setups -----
+let editingId = null, msgTimer = null;
+function getSetup(){
+  return {N, mode, count: $('count').value, seq: $('seq').value, basis, showMid: MidPref.show(), midWhich: MidPref.which(),
+    assign: Object.keys(assign).map(k => [+k, {v:assign[k].v, s:assign[k].s}])};
+}
+function setSetup(st){
+  N = st.N; mode = st.mode;
+  document.querySelectorAll('#s-modeSeg button').forEach(x => x.classList.toggle('on', x.dataset.m === mode));
+  $('countWrap').classList.toggle('hide', mode === 'M');
+  $('seqWrap').classList.toggle('hide', mode !== 'M');
+  $('count').value = st.count;
+  $('seq').value = st.seq;
+  $('deckSize').value = N;
+  basis = st.basis;
+  assign = {};
+  st.assign.forEach(([p, c]) => { assign[p] = {v:c.v, s:c.s}; });
+  sel = new Set(); anchor = null;
+  hidePop();
+  if(st.showMid !== undefined && (st.showMid !== MidPref.show() || st.midWhich !== MidPref.which())) MidPref.set(st.showMid, st.midWhich);
+  recompute();
+}
+function say(text){
+  const m = $('saveMsg');
+  m.textContent = text;
+  clearTimeout(msgTimer);
+  msgTimer = setTimeout(() => { m.textContent = ''; }, 3000);
+}
+function nextName(){
+  const names = new Set(Store.all().map(s => s.name));
+  let i = Store.all().length + 1;
+  while(names.has('Setup ' + i)) i++;
+  return 'Setup ' + i;
+}
+function askName(msg, def){
+  const r = window.prompt(msg, def);
+  if(r === null) return null;
+  return r.trim() || def;
+}
+function renderSaved(){
+  if(editingId && !Store.get(editingId)) editingId = null;
+  const all = Store.all();
+  let h = '';
+  if(!Store.persistent()) h += '<div class="snone">Browser storage is unavailable here, so saved setups will be lost when this page closes.</div>';
+  if(!all.length) h += '<div class="snone">Nothing saved yet. Build a setup above and press Save Setup.</div>';
+  all.forEach(s => {
+    h += '<div class="srow' + (s.id === editingId ? ' editing' : '') + '"><div class="sinfo"><div class="sname">' + esc(s.name) + '</div><div class="smeta">' + esc(describeSetup(s.st)) + '</div></div>' +
+      '<div class="sbtns"><button data-act="rename" data-id="' + s.id + '">Rename</button><button data-act="edit" data-id="' + s.id + '">Edit</button><button data-act="delete" data-id="' + s.id + '">Delete</button></div></div>';
+  });
+  $('savedList').innerHTML = h;
+  const ed = editingId ? Store.get(editingId) : null;
+  $('saveSetup').textContent = ed ? 'Update setup' : 'Save Setup';
+  $('saveNew').classList.toggle('hide', !ed);
+  $('stopEdit').classList.toggle('hide', !ed);
+  $('editBanner').classList.toggle('hide', !ed);
+  if(ed) $('editBanner').textContent = 'Editing "' + ed.name + '". Update setup saves your changes to it, or use Save as new to keep it unchanged.';
+}
+$('saveSetup').addEventListener('click', () => {
+  const st = getSetup();
+  const ed = editingId ? Store.get(editingId) : null;
+  if(ed){ Store.update(ed.id, st); say('Updated "' + ed.name + '".'); return; }
+  const name = askName('Name this setup', nextName());
+  if(name === null) return;
+  Store.add(name, st);
+  say('Saved "' + name + '".');
+});
+$('saveNew').addEventListener('click', () => {
+  const ed = editingId ? Store.get(editingId) : null;
+  const name = askName('Name the new setup', ed ? ed.name + ' copy' : nextName());
+  if(name === null) return;
+  editingId = Store.add(name, getSetup());
+  renderSaved();
+  say('Saved "' + name + '".');
+});
+$('stopEdit').addEventListener('click', () => { editingId = null; renderSaved(); });
+function closeToLab(){ $('toLabPanel').classList.add('hide'); }
+$('toLab').addEventListener('click', e => {
+  e.stopPropagation();
+  const p = $('toLabPanel');
+  p.classList.remove('hide');
+  const r = $('toLab').getBoundingClientRect();
+  const pw = p.offsetWidth, ph = p.offsetHeight;
+  p.style.left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left)) + 'px';
+  let top = r.bottom + 8;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
+  p.style.top = top + 'px';
+});
+function sendToLab(which){ closeToLab(); LabApp.importSetup(getSetup(), which); switchTab('lab'); }
+$('toLabStart').addEventListener('click', () => sendToLab('start'));
+$('toLabEnd').addEventListener('click', () => sendToLab('end'));
+$('toLabCancel').addEventListener('click', closeToLab);
+$('toLabPanel').addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', () => { if(currentTab === 'setup') closeToLab(); });
+document.addEventListener('keydown', e => { if(currentTab === 'setup' && e.key === 'Escape') closeToLab(); });
+$('savedList').addEventListener('click', e => {
+  const b = e.target.closest('button[data-act]');
+  if(!b) return;
+  const s = Store.get(b.dataset.id);
+  if(!s) return;
+  if(b.dataset.act === 'rename'){
+    const name = askName('Rename setup', s.name);
+    if(name !== null) Store.rename(s.id, name);
+  } else if(b.dataset.act === 'edit'){
+    commit();
+    setSetup(s.st);
+    editingId = s.id;
+    renderSaved();
+    say('Loaded "' + s.name + '" for editing.');
+  } else if(b.dataset.act === 'delete'){
+    if(!window.confirm('Delete "' + s.name + '"?')) return;
+    if(editingId === s.id) editingId = null;
+    Store.remove(s.id);
+  }
+});
+Store.onChange(renderSaved);
+
+applyDefaults(Defaults.get("setup"));
+renderSaved();
+updateHistoryButtons();
+recompute();
+return {recompute, hidePop, getSetup, setSetup};
+
+})();
+
+const LabApp = (function(){
+const $ = id => document.getElementById('l-' + id);
+
+let nextId = 1, nextUid = 1;
+const hlSet = new Set(); // uids of highlighted cards; kept outside the undo history so highlights never change on undo/redo
+let deck = [], bank = []; // card = {id, face:{v,s}|null}
+let mode = 'O';
+let sel = new Set(), anchor = null, activeSlot = null, suppressClick = false;
+
+function newCard(){ return {id: nextId++, uid: nextUid++, face: null}; }
+function initDeck(n){ deck = []; bank = []; for(let i=0;i<n;i++) deck.push(newCard()); }
+
+// ----- undo / redo (covers the deck and the bank, not the settings at the top) -----
+let undoStack = [], redoStack = [];
+const copyCard = c => ({id: c.id, uid: c.uid, face: c.face ? {v:c.face.v, s:c.face.s} : null});
+function snap(){ return {deck: deck.map(copyCard), bank: bank.map(copyCard), nextId}; }
+function commit(){
+  undoStack.push(snap());
+  if(undoStack.length > 300) undoStack.shift();
+  redoStack = [];
+  updateHistoryButtons();
+}
+function restore(s){
+  deck = s.deck.map(copyCard); bank = s.bank.map(copyCard); nextId = s.nextId;
+  sel = new Set(); anchor = null;
+  hidePop();
+  syncSize();
+  recompute();
+  updateHistoryButtons();
+}
+function undo(){ if(!undoStack.length) return; redoStack.push(snap()); restore(undoStack.pop()); }
+function redo(){ if(!redoStack.length) return; undoStack.push(snap()); restore(redoStack.pop()); }
+function updateHistoryButtons(){
+  $('undoBtn').disabled = !undoStack.length;
+  $('redoBtn').disabled = !redoStack.length;
+}
+
+function getSeq(){ return seqFrom(mode, $('count').value, $('seq').value); }
+function makeCardEl(c, labelNum){
+  const d = document.createElement('div');
+  d.className = 'card';
+  if(hlSet.has(c.uid)) d.classList.add('hl');
+  const idx = document.createElement('div');
+  idx.className = 'idx';
+  if(c.face){
+    const k = cardCorner(c.face);
+    if(isRed(c.face)) d.classList.add('red');
+    idx.innerHTML = '<span class="v">'+k.v+'</span><span class="s">'+k.s+'</span>';
+    d.classList.add('has');
+  }
+  d.appendChild(idx);
+  const pn = document.createElement('div');
+  pn.className = 'pos';
+  pn.textContent = labelNum;
+  d.appendChild(pn);
+  return d;
+}
+
+function renderSpread(el, cards, opts){
+  opts = opts || {};
+  el.innerHTML = '';
+  const n = cards.length, W = 66;
+  if(!n) return;
+  const rows = Math.ceil(n / ROWMAX);
+  const rowLen = Math.min(n, ROWMAX);
+  const avail = Math.max(300, el.clientWidth - 8);
+  let step = rowLen > 1 ? Math.floor((avail - W) / (rowLen - 1)) : W;
+  step = Math.max(26, Math.min(W, step));
+  for(let r=0;r<rows;r++){
+    const row = document.createElement('div');
+    row.className = 'row';
+    const first = r*ROWMAX + 1, last = Math.min(n, first + ROWMAX - 1);
+    row.style.width = ((last-first)*step + W + 4) + 'px';
+    for(let s=first;s<=last;s++){
+      const c = cards[s-1];
+      const d = makeCardEl(c, c.id);
+      d.style.left = ((s-first)*step) + 'px';
+      d.style.zIndex = s;
+      d.dataset.slot = s;
+      if(opts.marks && opts.marks[s]){
+        d.classList.add('mid');
+        const mk = document.createElement('div');
+        mk.className = 'mk';
+        mk.textContent = opts.marks[s].map(n => 'M' + n).join(' ');
+        d.appendChild(mk);
+      }
+      if(opts.picked && opts.picked.has(s)) d.classList.add('picked');
+      if(opts.active === s) d.classList.add('sel');
+      if(opts.onClick) d.addEventListener('click', e => opts.onClick(s, d, e));
+      if(opts.onPress) d.addEventListener('pointerdown', e => opts.onPress(s, d, e));
+      row.appendChild(d);
+    }
+    el.appendChild(row);
+  }
+}
+
+function renderBank(){
+  const box = $('bankCards');
+  box.innerHTML = '';
+  if(!bank.length){
+    const n = document.createElement('div');
+    n.className = 'empty-note';
+    n.textContent = 'Empty';
+    box.appendChild(n);
+    return;
+  }
+  bank.forEach((c, i) => {
+    const d = makeCardEl(c, c.id);
+    d.style.zIndex = i + 1;
+    d.dataset.bank = i;
+    d.addEventListener('pointerdown', e => pressStart('bank', i, d, e));
+    box.appendChild(d);
+  });
+}
+
+function syncSize(){ $('deckSize').value = deck.length; }
+
+function recompute(){
+  sel.forEach(s => { if(s > deck.length) sel.delete(s); });
+  renderSpread($('deckSpread'), deck, {
+    onClick: onCardClick, onPress: (s, d, e) => pressStart('deck', s, d, e),
+    active: activeSlot, picked: sel, marks: labMarks()
+  });
+  renderBank();
+  $('hlBtn').disabled = !sel.size;
+  const seq = getSeq();
+  $('seqLine').innerHTML = seq.length
+    ? 'Shuffles: <b>' + seq.map(x => x==='I' ? 'In' : 'Out').join(', ') + '</b>'
+    : 'No shuffles set.';
+}
+
+function doShuffle(){
+  commit();
+  let cards = deck.slice();
+  getSeq().forEach(tp => { cards = shuffleOnce(cards, tp); });
+  deck = cards;
+  sel = new Set(); anchor = null;
+  hidePop();
+  recompute();
+}
+
+// ----- selection and clicking -----
+function hidePop(){ activeSlot = null; $('pop').classList.add('hide'); }
+function onCardClick(s, el, e){
+  if(suppressClick) return;
+  e.stopPropagation();
+  const mod = e.ctrlKey || e.metaKey, shift = e.shiftKey;
+  if(mod || shift){
+    if(shift){
+      const a = anchor === null ? s : anchor;
+      const lo = Math.min(a, s), hi = Math.max(a, s);
+      if(!mod) sel = new Set();
+      for(let q=lo;q<=hi;q++) sel.add(q);
+    } else {
+      if(sel.has(s)) sel.delete(s); else sel.add(s);
+      anchor = s;
+    }
+    hidePop();
+    recompute();
+    return;
+  }
+  sel = new Set();
+  anchor = s;
+  openPop(s, el, e);
+}
+
+// ----- dragging (deck cards and bank cards) -----
+function pressStart(src, idx, el, e){
+  if(e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  const sx = e.clientX, sy = e.clientY;
+  const box = el.getBoundingClientRect();
+  const grabX = sx - box.left, grabY = sy - box.top;
+  let dragging = false, ghost = null, moving = null;
+
+  function clearDrop(){
+    document.querySelectorAll('#l-deckSpread .dropat').forEach(x => x.classList.remove('dropat'));
+    $('bank').classList.remove('dropat');
+  }
+  function findTarget(ev){
+    const u = document.elementFromPoint(ev.clientX, ev.clientY);
+    if(!u || !u.closest) return null;
+    const c = u.closest('#l-deckSpread .card');
+    if(c) return {type:'slot', q:+c.dataset.slot};
+    if(u.closest('#l-bank')) return {type:'bank'};
+    if(u.closest('#l-deckSpread')) return {type:'deck'};
+    return null;
+  }
+  function onMove(ev){
+    if(!dragging){
+      if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
+      dragging = true;
+      hidePop();
+      moving = src === 'deck' ? (sel.has(idx) ? Array.from(sel).sort((a,b)=>a-b) : [idx]) : [idx];
+      ghost = document.createElement('div');
+      ghost.className = 'ghost';
+      const clone = el.cloneNode(true);
+      clone.classList.remove('picked','sel','dropat');
+      clone.style.marginRight = '0';
+      ghost.appendChild(clone);
+      if(moving.length > 1){
+        const b = document.createElement('div');
+        b.className = 'badge';
+        b.textContent = moving.length;
+        ghost.appendChild(b);
+      }
+      document.body.appendChild(ghost);
+    }
+    ghost.style.left = (ev.clientX - grabX) + 'px';
+    ghost.style.top = (ev.clientY - grabY) + 'px';
+    clearDrop();
+    const t = findTarget(ev);
+    if(!t) return;
+    if(t.type === 'bank'){ if(src === 'deck') $('bank').classList.add('dropat'); return; }
+    if(t.type === 'slot'){
+      const m = src === 'deck' ? moving.length : 1;
+      const maxQ = src === 'deck' ? deck.length - m + 1 : deck.length + 1;
+      const q = Math.max(1, Math.min(maxQ, t.q));
+      for(let k=0;k<m;k++){
+        const d = document.querySelector('#l-deckSpread .card[data-slot="' + (q + k) + '"]');
+        if(d) d.classList.add('dropat');
+      }
+    }
+  }
+  function onUp(ev){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    document.removeEventListener('pointercancel', onUp);
+    if(!dragging) return;
+    clearDrop();
+    if(ghost) ghost.remove();
+    suppressClick = true;
+    setTimeout(() => { suppressClick = false; }, 60);
+    const t = findTarget(ev);
+    if(t){
+      if(src === 'deck'){
+        if(t.type === 'bank'){
+          commit();
+          const set = new Set(moving);
+          moving.forEach(s => bank.push(deck[s-1]));
+          deck = deck.filter((_, i) => !set.has(i+1));
+          sel = new Set(); anchor = null;
+          syncSize();
+        } else if(t.type === 'slot'){
+          commit();
+          const r = moveInsert(deck, moving, t.q);
+          deck = r.out;
+          sel = new Set(r.newSlots); anchor = null;
+        }
+      } else {
+        const card = bank[idx];
+        let q = null;
+        if(t.type === 'slot') q = Math.max(1, Math.min(deck.length + 1, t.q));
+        else if(t.type === 'deck') q = deck.length + 1;
+        if(q !== null){
+          commit();
+          bank.splice(idx, 1);
+          deck.splice(q - 1, 0, card);
+          sel = new Set([q]); anchor = null;
+          syncSize();
+        }
+      }
+    }
+    recompute();
+  }
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onUp);
+}
+
+// ----- popover (assign a face) -----
+let pickV = null, pickS = null;
+function buildPop(){
+  $('gridV').innerHTML = VALUES.map(v=>'<button data-v="'+v+'">'+v+'</button>').join('');
+  $('gridS').innerHTML = SUITS.map(s=>'<button data-s="'+s.g+'" class="'+(s.r?'red':'')+'">'+s.g+'</button>').join('');
+  $('gridJ').innerHTML = '<button data-j="J1" class="red">Joker R</button><button data-j="J2">Joker B</button>';
+  $('gridV').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ pickV=b.dataset.v; tryAssign(); }));
+  $('gridS').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ pickS=b.dataset.s; tryAssign(); }));
+  $('gridJ').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ finish({v:'Joker', s:b.dataset.j}); }));
+}
+function paintPop(){
+  $('gridV').querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.v===pickV));
+  $('gridS').querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.s===pickS));
+}
+function tryAssign(){
+  $('popErr').textContent = '';
+  paintPop();
+  if(pickV && pickS) finish({v:pickV, s:pickS});
+}
+function finish(f){
+  const me = deck[activeSlot - 1];
+  const key = cardKey(f);
+  for(let i=0;i<deck.length;i++){
+    if(deck[i] !== me && deck[i].face && cardKey(deck[i].face) === key){
+      $('popErr').textContent = cardLabel(f) + ' is already in the deck at position ' + (i+1) + '.';
+      pickV = null; pickS = null; paintPop();
+      return;
+    }
+  }
+  for(let i=0;i<bank.length;i++){
+    if(bank[i].face && cardKey(bank[i].face) === key){
+      $('popErr').textContent = cardLabel(f) + ' is already in the bank.';
+      pickV = null; pickS = null; paintPop();
+      return;
+    }
+  }
+  commit();
+  me.face = f;
+  closePop();
+}
+function openPop(slot, el, e){
+  if(e) e.stopPropagation();
+  activeSlot = slot;
+  pickV = null; pickS = null;
+  const c = deck[slot - 1];
+  $('popTitle').textContent = 'Position ' + slot + (c.id !== slot ? ' (card ' + c.id + ')' : '') + (c.face ? '  (now ' + cardLabel(c.face) + ')' : '');
+  $('popErr').textContent = '';
+  $('popClear').classList.toggle('hide', !c.face);
+  paintPop();
+  const pop = $('pop');
+  pop.classList.remove('hide');
+  const r = el.getBoundingClientRect();
+  const ph = pop.offsetHeight, pw = pop.offsetWidth;
+  let left = Math.min(window.innerWidth - pw - 8, Math.max(8, r.left));
+  let top = r.bottom + 8;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+  recompute();
+}
+function closePop(){ hidePop(); recompute(); }
+$('popClear').addEventListener('click', () => { commit(); deck[activeSlot - 1].face = null; closePop(); });
+$('popCancel').addEventListener('click', closePop);
+$('pop').addEventListener('click', e => e.stopPropagation());
+document.addEventListener('click', e => {
+  if(currentTab !== 'lab') return;
+  closeImport();
+  if(activeSlot !== null){ closePop(); return; }
+  if(sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
+});
+buildPop();
+
+// ----- controls -----
+$('deckSize').addEventListener('input', () => {
+  const v = parseInt($('deckSize').value, 10);
+  if(!v || v < 1) return;
+  const n = Math.min(500, v);
+  if(n === deck.length) return;
+  commit();
+  if(n > deck.length){ while(deck.length < n) deck.push(newCard()); }
+  else { deck.length = n; }
+  sel = new Set(); anchor = null;
+  hidePop();
+  recompute();
+});
+document.querySelectorAll('#l-modeSeg button').forEach(b => b.addEventListener('click', () => {
+  mode = b.dataset.m;
+  document.querySelectorAll('#l-modeSeg button').forEach(x => x.classList.toggle('on', x===b));
+  $('countWrap').classList.toggle('hide', mode==='M');
+  $('seqWrap').classList.toggle('hide', mode!=='M');
+  recompute();
+}));
+$('count').addEventListener('input', recompute);
+$('seq').addEventListener('input', recompute);
+$('shuffleBtn').addEventListener('click', doShuffle);
+// Reset the numbers on the cards to their current positions (banked cards continue after the deck).
+$('renumberBtn').addEventListener('click', () => {
+  commit();
+  let n = 1;
+  deck.forEach(c => { c.id = n++; });
+  bank.forEach(c => { c.id = n++; });
+  nextId = n;
+  recompute();
+});
+// Reset everything back to the starting state: fresh 54 card blank deck, empty bank, default settings.
+$('resetBtn').addEventListener('click', () => {
+  if(!confirm('Reset everything? This clears the deck, the bank and all assigned cards, and returns the options to your saved defaults.')) return;
+  commit();
+  nextId = 1;
+  const d = Defaults.get('lab');
+  applyDefaults(d);
+  initDeck(d.N);
+  sel = new Set(); anchor = null;
+  hidePop();
+  syncSize();
+  recompute();
+});
+$('hlBtn').addEventListener('click', () => {
+  const uids = Array.from(sel).filter(s => deck[s-1]).map(s => deck[s-1].uid);
+  if(!uids.length) return;
+  if(uids.every(u => hlSet.has(u))) uids.forEach(u => hlSet.delete(u));
+  else uids.forEach(u => hlSet.add(u));
+  recompute();
+});
+$('undoBtn').addEventListener('click', undo);
+$('redoBtn').addEventListener('click', redo);
+window.addEventListener('resize', () => { if(currentTab === 'lab') recompute(); });
+document.addEventListener('keydown', e => {
+  if(currentTab !== 'lab') return;
+  const typing = e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName);
+  if((e.ctrlKey || e.metaKey) && !typing){
+    const k = e.key.toLowerCase();
+    if(k === 'z' && !e.shiftKey){ e.preventDefault(); undo(); return; }
+    if(k === 'y' || (k === 'z' && e.shiftKey)){ e.preventDefault(); redo(); return; }
+  }
+  if(e.key!=='Escape') return;
+  if(!$('importPanel').classList.contains('hide')){ closeImport(); return; }
+  if(activeSlot !== null) closePop(); else if(sel.size){ sel = new Set(); recompute(); }
+});
+
+applyDefaults(Defaults.get('lab'));
+initDeck(Defaults.get('lab').N);
+syncSize();
+recompute();
+updateHistoryButtons();
+
+// ----- midpoints -----
+var showMid = MidPref.show(), midWhich = MidPref.which();
+function syncMidUI(){
+  showMid = MidPref.show(); midWhich = MidPref.which();
+  $('showMid').checked = showMid;
+  $('midWhich').classList.toggle('hide', !showMid);
+  document.querySelectorAll('#l-midWhich button').forEach(x => x.classList.toggle('on', x.dataset.w === midWhich));
+}
+function labMarks(){
+  if(!showMid) return null;
+  const m = {};
+  midpoints(getSeq(), deck.length, midWhich).forEach(x => { (m[x.start] = m[x.start] || []).push(x.n); });
+  return m;
+}
+$('showMid').addEventListener('change', () => MidPref.set($('showMid').checked, midWhich));
+document.querySelectorAll('#l-midWhich button').forEach(b => b.addEventListener('click', () => MidPref.set(showMid, b.dataset.w)));
+MidPref.onChange(() => { syncMidUI(); if(currentTab === 'lab') recompute(); });
+syncMidUI();
+recompute();
+
+// ----- defaults -----
+function applyDefaults(d){
+  mode = d.mode;
+  document.querySelectorAll('#l-modeSeg button').forEach(x => x.classList.toggle('on', x.dataset.m === mode));
+  $('countWrap').classList.toggle('hide', mode === 'M');
+  $('seqWrap').classList.toggle('hide', mode !== 'M');
+  $('count').value = d.count;
+  $('seq').value = d.seq;
+}
+$('saveDefaults').addEventListener('click', () => {
+  const ok = Defaults.set('lab', {N: deck.length + bank.length, mode, count: $('count').value, seq: $('seq').value});
+  flashButton($('saveDefaults'), ok ? 'Defaults saved' : 'Could not save');
+});
+
+// ----- import a saved setup -----
+function importSetup(st, which){
+  commit();
+  if(st.showMid !== undefined && (st.showMid !== MidPref.show() || st.midWhich !== MidPref.which())) MidPref.set(st.showMid, st.midWhich);
+  const seq = seqFrom(st.mode, st.count, st.seq);
+  const startMap = {};
+  if(which === 'end') st.assign.forEach(([p, c]) => { startMap[st.basis === 'end' ? p : endFor(p, seq, st.N)] = c; });
+  else st.assign.forEach(([p, c]) => { startMap[st.basis === 'start' ? p : startFor(p, seq, st.N)] = c; });
+  mode = st.mode;
+  document.querySelectorAll('#l-modeSeg button').forEach(x => x.classList.toggle('on', x.dataset.m === mode));
+  $('countWrap').classList.toggle('hide', mode === 'M');
+  $('seqWrap').classList.toggle('hide', mode !== 'M');
+  $('count').value = st.count;
+  $('seq').value = st.seq;
+  nextId = 1;
+  initDeck(st.N);
+  deck.forEach((c, i) => { const f = startMap[i + 1]; if(f) c.face = {v:f.v, s:f.s}; });
+  sel = new Set(); anchor = null;
+  hidePop();
+  syncSize();
+  recompute();
+  updateHistoryButtons();
+}
+function closeImport(){ $('importPanel').classList.add('hide'); }
+function openImport(e){
+  e.stopPropagation();
+  const all = Store.all();
+  let h = all.length ? '' : '<div class="snone">No saved setups yet. Save one on the Setup tab first.</div>';
+  all.forEach(s => {
+    h += '<div class="srow"><div class="sinfo"><div class="sname">' + esc(s.name) + '</div><div class="smeta">' + esc(describeSetup(s.st)) + '</div></div><div class="sbtns"><button data-id="' + s.id + '" data-which="start">Starting Order</button><button data-id="' + s.id + '" data-which="end">Ending Order</button></div></div>';
+  });
+  $('importList').innerHTML = h;
+  const p = $('importPanel');
+  p.classList.remove('hide');
+  const r = $('importBtn').getBoundingClientRect();
+  const pw = p.offsetWidth, ph = p.offsetHeight;
+  p.style.left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left)) + 'px';
+  let top = r.bottom + 8;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
+  p.style.top = top + 'px';
+}
+$('importBtn').addEventListener('click', openImport);
+$('importClose').addEventListener('click', closeImport);
+$('importPanel').addEventListener('click', e => {
+  e.stopPropagation();
+  const b = e.target.closest('button[data-id]');
+  if(!b) return;
+  const s = Store.get(b.dataset.id);
+  if(s){ closeImport(); importSetup(s.st, b.dataset.which); }
+});
+
+return {recompute, hidePop, importSetup, closeImport};
+
+})();
+
+// ===== tabs =====
+function switchTab(name){
+  currentTab = name;
+  SetupApp.hidePop(); LabApp.hidePop(); LabApp.closeImport();
+  document.getElementById('setupTab').classList.toggle('hide', name !== 'setup');
+  document.getElementById('labTab').classList.toggle('hide', name !== 'lab');
+  document.getElementById('tabSetup').classList.toggle('on', name === 'setup');
+  document.getElementById('tabLab').classList.toggle('on', name === 'lab');
+  (name === 'setup' ? SetupApp : LabApp).recompute();
+}
+document.getElementById('tabSetup').addEventListener('click', () => switchTab('setup'));
+document.getElementById('tabLab').addEventListener('click', () => switchTab('lab'));
+
+</script>
+</body>
+</html>
