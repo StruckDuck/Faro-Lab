@@ -172,6 +172,78 @@
   .pop.mp{width:300px}
   .card.empty{opacity:1;background:#e2d8bf}
   .pop.wide{width:380px;max-height:70vh;overflow-y:auto}
+
+  /* ---- mobile ---- */
+  .optsum,.switch,.mbar,.banner,.bankchip,.bankbtns,.mnav,.mbl,.auto,.msheet{display:none}
+  .pop .head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+  .pop .head .t{margin:0;flex:1}
+  .msh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:17px}
+  body.mob{padding:14px 14px 100px}
+  body.mob.sheetopen{padding-bottom:480px}
+  body.mob,body.mob *{-webkit-tap-highlight-color:transparent}
+  body.mob .sub,body.mob .hint{display:none}
+  body.mob #setupTab > h2,body.mob #labTab > h2{display:none}
+  body.mob .topbar{gap:12px;margin-bottom:10px;align-items:center;justify-content:space-between}
+  body.mob h1{font-size:22px;margin:0}
+  body.mob .tabs button{padding:8px 12px;font-size:14px}
+  body.mob input,body.mob select{font-size:16px}
+  body.mob .optsum{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;font-size:14px;cursor:pointer}
+  body.mob .optsum span:last-child{color:var(--muted);white-space:nowrap}
+  body.mob .controls{display:none;margin-top:8px}
+  body.mob .controls.open{display:flex}
+  body.mob .switch{display:flex;margin:10px 0 8px}
+  body.mob .switch button{flex:1;padding:10px 0;font-size:15px}
+  body.mob .banner{display:block;font-size:13px;color:var(--accent);min-height:18px;margin:8px 0}
+  body.mob #setupTab[data-view="end"] #s-startSpread,body.mob #setupTab[data-view="start"] #s-endSpread{display:none}
+  body.mob .spread{overflow:visible;padding:0}
+  body.mob .spread{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  body.mob .row{display:contents}
+  body.mob .card{position:relative;left:auto!important;top:auto;z-index:auto!important;width:auto;height:62px;touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;box-shadow:-1px 1px 3px rgba(0,0,0,.35)}
+  body.mob .card .idx{top:3px;left:4px;min-width:0}
+  body.mob .card .idx .v,body.mob .card .idx .s{font-size:15px}
+  body.mob .card .pos{left:4px;bottom:3px;font-size:11px}
+  body.mob .card .mk{left:auto;right:3px;top:3px;transform:none;font-size:10px;max-width:none}
+  body.mob .clickable .card:hover{box-shadow:-1px 1px 3px rgba(0,0,0,.35)}
+  body.mob .card.mid,body.mob .clickable .card.mid:hover{box-shadow:0 0 0 2px var(--accent)}
+  body.mob .card.sel{scroll-margin-bottom:440px;box-shadow:0 0 0 3px #fff;border-color:#fff}
+  body.mob .clickable .card.picked{box-shadow:0 0 0 3px #8fc7e8}
+  body.mob .ghost .card{width:54px;height:76px}
+  body.mob .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:900;gap:8px;padding:10px 12px calc(14px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
+  body.mob .mbar button{flex:1;padding:12px 4px;font-size:15px;min-width:0}
+  body.mob .mbar button.pri{background:var(--accent);color:#2b2622;border-color:var(--accent)}
+  body.mob .mbar button:disabled{opacity:.4}
+  body.mob .pop,body.mob .msheet.open,body.mob #l-bank.open{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%!important;max-width:none;max-height:80vh;overflow-y:auto;border:0;border-top:2px solid var(--accent);border-radius:14px 14px 0 0;padding:14px 14px 26px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5);z-index:1000;background:var(--panel)}
+  body.mob .msheet.open{display:block}
+  body.mob .pop .t{font-size:16px}
+  body.mob .pop .mnav{display:block;width:44px;height:40px;padding:0;font-size:16px}
+  body.mob .pop .grid{gap:6px}
+  body.mob .pop .grid button{padding:0;height:44px;font-size:17px}
+  body.mob .pop .suits button{height:54px;font-size:28px}
+  body.mob .pop .gap{height:10px}
+  body.mob .pop .foot{align-items:center;gap:8px;justify-content:flex-end}
+  body.mob input[type=checkbox]{accent-color:var(--accent)}
+  body.mob .pop .foot button{font-size:15px;padding:10px 16px}
+  body.mob .pop .auto{display:flex;align-items:center;gap:8px;font-size:14px;margin-top:12px}
+  body.mob .pop .auto input{width:auto}
+  body.mob .pop .mbl{display:inline}
+  body.mob .pop .dsk{display:none}
+  body.mob .msheet button{padding:10px 12px}
+  body.mob .msheet .toolbar{margin-top:10px;flex-wrap:wrap}
+  body.mob .msheet h2{display:block;margin:16px 0 6px}
+  body.mob .srow{flex-wrap:wrap}
+  body.mob #s-undoBtn,body.mob #s-redoBtn{display:none}
+  body.mob .midrow{display:block;margin:0}
+  body.mob .side{display:none}
+  body.mob #l-bank{display:none}
+  body.mob #l-bank.open{display:block}
+  body.mob #l-bank.open .bl{margin-bottom:10px;font-size:17px;color:var(--text)}
+  body.mob .bankcards{display:flex;flex-wrap:wrap;gap:6px;min-height:70px;border:1px dashed var(--line);border-radius:6px;padding:8px}
+  body.mob .bankcards .card{width:46px;margin-right:0}
+  body.mob .bankchip{display:block;width:100%;margin-top:10px;padding:10px;font-size:14px;text-align:left}
+  body.mob .bankbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  body.mob .bankbtns button{flex:1;padding:10px 6px;font-size:14px}
+  body.mob .bl .dsk{display:none}
+  body.mob .bl .mbl{display:inline}
 </style>
 </head>
 <body>
@@ -186,6 +258,7 @@
 <div id="setupTab">
 <div class="sub">Pick where cards should end up. The app works out where they need to start.</div>
 
+<div class="optsum" id="s-optSum"><span id="s-optTxt"></span><span>Options &#9662;</span></div>
 <div class="controls">
   <div class="ctl">Cards in deck
     <input type="number" id="s-deckSize" value="54" min="2" max="500">
@@ -206,7 +279,7 @@
   <div class="ctl"><button id="s-saveDefaults">Save defaults</button></div>
 </div>
 
-<div class="toolbar">
+<div class="toolbar" id="s-tbHist">
   <button id="s-undoBtn">Undo</button>
   <button id="s-redoBtn">Redo</button>
   <button id="s-resetBtn">Reset all</button>
@@ -214,6 +287,8 @@
   <div class="seg" id="s-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button></div>
 </div>
 
+<div class="seg switch" id="s-switch"><button data-l="end" class="on">Ending Order</button><button data-l="start">Starting Order</button></div>
+<div class="banner" id="s-banner"></div>
 <h2>Ending Order</h2>
 <div class="hint">Click a position to assign a card. Drag assigned cards to move them. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
 <div class="spread clickable" id="s-endSpread"></div>
@@ -222,7 +297,7 @@
 <div class="hint">Set the deck up like this before the shuffles. Position 1 is the top card. You can assign and move cards here too, and the Ending Order updates to match.</div>
 <div class="spread clickable" id="s-startSpread"></div>
 <div class="seqline" id="s-seqLine"></div>
-<div class="toolbar">
+<div class="toolbar" id="s-tbSave">
   <button id="s-saveSetup">Save Setup</button>
   <button id="s-saveNew" class="hide">Save as new</button>
   <button id="s-stopEdit" class="hide">Stop editing</button>
@@ -232,9 +307,9 @@
   <span class="msg" id="s-saveMsg"></span>
 </div>
 <div class="editbanner hide" id="s-editBanner"></div>
-<h2>Saved setups</h2>
+<h2 id="s-savedH">Saved setups</h2>
 <div id="s-savedList"></div>
-<div class="toolbar">
+<div class="toolbar" id="s-tbBk">
   <button id="s-exportSetups">Export setups</button>
   <button id="s-importSetups">Import setups</button>
   <input type="file" id="s-importFile" accept=".json,application/json" class="hide">
@@ -243,16 +318,17 @@
 <div id="s-results"></div>
 
 <div class="pop hide" id="s-pop">
-  <div class="t" id="s-popTitle"></div>
+  <div class="head"><button class="mnav" id="s-popPrev">&#9664;</button><div class="t" id="s-popTitle"></div><button class="mnav" id="s-popNext">&#9654;</button></div>
   <div class="grid vals" id="s-gridV"></div>
   <div class="gap"></div>
   <div class="grid suits" id="s-gridS"></div>
   <div class="gap"></div>
   <div class="grid jokers" id="s-gridJ"></div>
   <div class="err" id="s-popErr"></div>
+  <label class="auto"><input type="checkbox" id="s-popAuto" checked> Next position after picking</label>
   <div class="foot">
     <button id="s-popClear">Clear</button>
-    <button id="s-popCancel">Close</button>
+    <button id="s-popCancel"><span class="dsk">Close</span><span class="mbl">Done</span></button>
   </div>
 </div>
 
@@ -273,11 +349,28 @@
   </div>
 </div>
 
+<div class="mbar" id="s-mbarMain">
+  <button id="s-mUndo">Undo</button>
+  <button id="s-mRedo">Redo</button>
+  <button id="s-mSel">Select</button>
+  <button id="s-mMore">More</button>
+</div>
+<div class="mbar hide" id="s-mbarSel">
+  <button id="s-mUndo2">Undo</button>
+  <button id="s-mClear">Clear cards</button>
+  <button id="s-mDone" class="pri">Done</button>
+</div>
+<div class="msheet" id="s-moreSheet">
+  <div class="msh"><b>More</b><button id="s-moreClose">Close</button></div>
+  <div id="s-moreBody"></div>
+</div>
+
 </div>
 
 <div id="labTab" class="hide">
 <div class="sub">Set up the deck, then press Shuffle to run the shuffles on it.</div>
 
+<div class="optsum" id="l-optSum"><span id="l-optTxt"></span><span>Options &#9662;</span></div>
 <div class="controls">
   <div class="ctl">Cards in deck
     <input type="number" id="l-deckSize" value="54" min="1" max="500">
@@ -298,19 +391,23 @@
   <div class="ctl"><button id="l-saveDefaults">Save defaults</button></div>
 </div>
 
-<div class="toolbar">
+<div class="toolbar" id="l-tbMid">
   <label class="tgl"><input type="checkbox" id="l-showMid" checked> Show midpoint cards</label>
   <div class="seg" id="l-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button></div>
 </div>
 
+<div class="banner" id="l-banner"></div>
 <h2>Deck</h2>
 <div class="hint">Click a card to assign a face. Drag cards to move them. Every card keeps the number it started with, so after a shuffle you can see where each one came from. Drag to the bank to remove it. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
 <div class="spread clickable" id="l-deckSpread"></div>
+<button class="bankchip" id="l-bankChip">Bank (0)</button>
 
 <div class="midrow">
   <div class="bank" id="l-bank">
-    <div class="bl">Bank (drop cards here to remove them from the deck, drag them back to restore)</div>
+    <div class="bl"><span class="dsk">Bank (drop cards here to remove them from the deck, drag them back to restore)</span><span class="mbl" id="l-bankTitle">Bank</span></div>
     <div class="bankcards" id="l-bankCards"></div>
+    <div class="note bankbtns" style="font-size:12px;color:var(--muted)">Tap a banked card, then tap a position in the deck to put it back.</div>
+    <div class="bankbtns"><button id="l-bankSend">Send selected to bank</button><button id="l-bankRestore">Restore all</button><button id="l-bankClose">Close</button></div>
   </div>
   <div class="side">
     <button class="big" id="l-shuffleBtn">Shuffle</button>
@@ -324,16 +421,17 @@
 </div>
 
 <div class="pop hide" id="l-pop">
-  <div class="t" id="l-popTitle"></div>
+  <div class="head"><button class="mnav" id="l-popPrev">&#9664;</button><div class="t" id="l-popTitle"></div><button class="mnav" id="l-popNext">&#9654;</button></div>
   <div class="grid vals" id="l-gridV"></div>
   <div class="gap"></div>
   <div class="grid suits" id="l-gridS"></div>
   <div class="gap"></div>
   <div class="grid jokers" id="l-gridJ"></div>
   <div class="err" id="l-popErr"></div>
+  <label class="auto"><input type="checkbox" id="l-popAuto" checked> Next position after picking</label>
   <div class="foot">
     <button id="l-popClear">Clear face</button>
-    <button id="l-popCancel">Close</button>
+    <button id="l-popCancel"><span class="dsk">Close</span><span class="mbl">Done</span></button>
   </div>
 </div>
 
@@ -341,6 +439,24 @@
   <div class="t">Import a saved setup into Experiment, laid out as its Starting Order or its Ending Order</div>
   <div id="l-importList"></div>
   <div class="foot"><span></span><button id="l-importClose">Close</button></div>
+</div>
+
+<div class="mbar" id="l-mbarMain">
+  <button id="l-mShuffle" class="pri">Shuffle</button>
+  <button id="l-mUndo">Undo</button>
+  <button id="l-mRedo">Redo</button>
+  <button id="l-mSel">Select</button>
+  <button id="l-mMore">More</button>
+</div>
+<div class="mbar hide" id="l-mbarSel">
+  <button id="l-mUndo2">Undo</button>
+  <button id="l-mHl">Highlight</button>
+  <button id="l-mBank">To bank</button>
+  <button id="l-mDone" class="pri">Done</button>
+</div>
+<div class="msheet" id="l-moreSheet">
+  <div class="msh"><b>More</b><button id="l-moreClose">Close</button></div>
+  <div id="l-moreBody"></div>
 </div>
 
 </div>
@@ -501,6 +617,21 @@ function flashButton(b, text){
 
 let currentTab = 'setup';
 
+// ===== mobile support =====
+const MQ = window.matchMedia ? window.matchMedia('(max-width: 700px)') : {matches:false};
+function isMobile(){ return !!MQ.matches; }
+const MobHooks = [];
+function applyMob(){ document.body.classList.toggle('mob', isMobile()); if(!isMobile()) document.body.classList.remove('sheetopen'); }
+applyMob();
+if(MQ.addEventListener) MQ.addEventListener('change', () => { applyMob(); MobHooks.forEach(f => f()); });
+const Drag = {active:false};
+document.addEventListener('touchmove', e => { if(Drag.active && e.cancelable) e.preventDefault(); }, {passive:false});
+document.addEventListener('contextmenu', e => { if(isMobile() && e.target.closest && e.target.closest('.card')) e.preventDefault(); });
+function edgeScroll(ev){
+  const y = ev.clientY, h = window.innerHeight;
+  if(y < 90) window.scrollBy(0, -14); else if(y > h - 130) window.scrollBy(0, 14);
+}
+
 const SetupApp = (function(){
 const $ = id => document.getElementById('s-' + id);
 
@@ -630,11 +761,12 @@ function applyMove(assignObj, moving, offset, N){
   return {next, moved: moving.map(s => s + offset), offset};
 }
 
-function hidePop(){ activePos = null; activeList = null; $('pop').classList.add('hide'); closeMp(); }
+function hidePop(){ activePos = null; activeList = null; $('pop').classList.add('hide'); document.body.classList.remove('sheetopen'); closeMp(); }
 
 function onCardClick(list, p, el, e){
   if(suppressClick) return;
   e.stopPropagation();
+  if(selectMode){ selectTap(list, p); return; }
   const map = view(getSeq())[list];
   const mod = e.ctrlKey || e.metaKey, shift = e.shiftKey;
   if(mod || shift){
@@ -667,6 +799,8 @@ function pressStart(list, p, el, e){
   const grabX = sx - box.left, grabY = sy - box.top;
   const spreadSel = '#s-' + list + 'Spread';
   let dragging = false, ghost = null, moving = null;
+  const touch = e.pointerType === 'touch';
+  let lastX = sx, lastY = sy, forceStart = false, pressTimer = null;
 
   function clearDrop(){ document.querySelectorAll(spreadSel + ' .dropat').forEach(x => x.classList.remove('dropat')); }
   function overPos(ev){
@@ -675,8 +809,12 @@ function pressStart(list, p, el, e){
     return c ? +c.dataset.pos : null;
   }
   function onMove(ev){
+    lastX = ev.clientX; lastY = ev.clientY;
     if(!dragging){
-      if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
+      if(!forceStart){
+        if(touch){ if(Math.hypot(ev.clientX - sx, ev.clientY - sy) > 10) onUp(); return; }
+        if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
+      }
       dragging = true;
       hidePop();
       moving = (selList === list && sel.has(p)) ? Array.from(sel).sort((a,b)=>a-b) : [p];
@@ -692,9 +830,11 @@ function pressStart(list, p, el, e){
         ghost.appendChild(b);
       }
       document.body.appendChild(ghost);
+      if(isMobile()) setBanner('Moving ' + moving.length + (moving.length === 1 ? ' card' : ' cards') + '. Release over a position to drop.');
     }
     ghost.style.left = (ev.clientX - grabX) + 'px';
     ghost.style.top = (ev.clientY - grabY) + 'px';
+    if(isMobile()) edgeScroll(ev);
     clearDrop();
     const over = overPos(ev);
     if(over !== null){
@@ -707,6 +847,8 @@ function pressStart(list, p, el, e){
     }
   }
   function onUp(ev){
+    clearTimeout(pressTimer);
+    Drag.active = false;
     document.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerup', onUp);
     document.removeEventListener('pointercancel', onUp);
@@ -731,6 +873,14 @@ function pressStart(list, p, el, e){
   document.addEventListener('pointermove', onMove);
   document.addEventListener('pointerup', onUp);
   document.addEventListener('pointercancel', onUp);
+  if(touch){
+    pressTimer = setTimeout(() => {
+      forceStart = true;
+      onMove({clientX: lastX, clientY: lastY});
+      Drag.active = true;
+      try{ if(navigator.vibrate) navigator.vibrate(15); }catch(_e){}
+    }, 380);
+  }
 }
 
 // ----- popover -----
@@ -764,7 +914,7 @@ function finish(c){
   }
   commit(before);
   assign[activePos] = c;
-  closePop();
+  afterAssign();
 }
 function openPop(list, pos, el, e){
   if(e) e.stopPropagation();
@@ -785,12 +935,15 @@ function openPop(list, pos, el, e){
   if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
   pop.style.left = left + 'px';
   pop.style.top = top + 'px';
+  document.body.classList.toggle('sheetopen', isMobile());
   recompute();
+  if(isMobile()) revealActive();
 }
 function closePop(){
   activePos = null;
   activeList = null;
   $('pop').classList.add('hide');
+  document.body.classList.remove('sheetopen');
   recompute();
 }
 $('popClear').addEventListener('click', () => { commit(); ensureBasis(activeList); delete assign[activePos]; closePop(); });
@@ -800,7 +953,7 @@ document.addEventListener('click', e => {
   if(currentTab !== 'setup') return;
   closeMp();
   if(activePos){ closePop(); return; }
-  if(sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
+  if(!selectMode && sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
 });
 buildPop();
 
@@ -1248,6 +1401,103 @@ $('savedList').addEventListener('click', e => {
 });
 Store.onChange(renderSaved);
 
+// ----- mobile layout -----
+let selectMode = false, mobView = 'end', placedMob = false;
+const moreNodes = ['tbSave','editBanner','savedH','savedList','tbBk','tbHist'].map(id => $(id));
+const moreHolders = moreNodes.map(n => { const c = document.createComment(''); n.parentNode.insertBefore(c, n); return c; });
+function placeMore(){
+  const mob = isMobile();
+  if(placedMob === mob) return;
+  placedMob = mob;
+  moreNodes.forEach((n, i) => { if(mob) $('moreBody').appendChild(n); else moreHolders[i].after(n); });
+  if(!mob){ selectMode = false; $('moreSheet').classList.remove('open'); }
+}
+function setBanner(t){ $('banner').textContent = t; }
+function bannerText(){
+  if(selectMode) return 'Select mode: tap cards to add or remove. ' + sel.size + ' selected.';
+  const ed = editingId ? Store.get(editingId) : null;
+  return (ed ? 'Editing "' + ed.name + '". ' : '') + 'Tap a position to assign a card.';
+}
+function optText(){
+  const seq = getSeq();
+  if(mode === 'M') return 'Mixed ' + (seq.map(x => x).join(' ') || 'none') + ', ' + N + ' cards';
+  return 'All ' + (mode === 'I' ? 'In' : 'Out') + ', ' + seq.length + (seq.length === 1 ? ' shuffle' : ' shuffles') + ', ' + N + ' cards';
+}
+function mobSync(){
+  placeMore();
+  if(!isMobile()) return;
+  document.getElementById('setupTab').dataset.view = mobView;
+  $('switch').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.l === mobView));
+  setBanner(bannerText());
+  $('optTxt').textContent = optText();
+  $('mbarMain').classList.toggle('hide', selectMode);
+  $('mbarSel').classList.toggle('hide', !selectMode);
+  $('mUndo').disabled = $('mUndo2').disabled = !undoStack.length;
+  $('mRedo').disabled = !redoStack.length;
+  $('mClear').disabled = !sel.size;
+}
+const _recompute = recompute;
+recompute = function(){ _recompute(); mobSync(); };
+MobHooks.push(() => { mobSync(); if(currentTab === 'setup') recompute(); });
+
+function selectTap(list, p){
+  const map = view(getSeq())[list];
+  if(selList !== list){ sel = new Set(); anchor = null; selList = list; }
+  if(!map[p]) return;
+  if(sel.has(p)) sel.delete(p); else sel.add(p);
+  anchor = p;
+  hidePop();
+  recompute();
+}
+function revealActive(){
+  const el = document.querySelector('#s-' + activeList + 'Spread .card[data-pos="' + activePos + '"]');
+  if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+}
+function popFill(){
+  const cur = view(getSeq())[activeList][activePos];
+  $('popTitle').textContent = (activeList === 'end' ? 'Ending Order' : 'Starting Order') + ', position ' + activePos + (cur ? ' (now ' + cardLabel(cur) + ')' : '');
+  $('popErr').textContent = '';
+  $('popClear').classList.toggle('hide', !cur);
+  paintPop();
+}
+function gotoPos(p){
+  p = Math.max(1, Math.min(N, p));
+  activePos = p;
+  selList = activeList;
+  pickV = null; pickS = null;
+  popFill();
+  recompute();
+  revealActive();
+}
+function afterAssign(){
+  if(isMobile() && $('popAuto').checked && activePos < N) gotoPos(activePos + 1);
+  else closePop();
+}
+$('popPrev').addEventListener('click', () => { if(activePos) gotoPos(activePos - 1); });
+$('popNext').addEventListener('click', () => { if(activePos) gotoPos(activePos + 1); });
+
+$('optSum').addEventListener('click', () => { document.querySelector('#setupTab .controls').classList.toggle('open'); });
+$('switch').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { mobView = b.dataset.l; hidePop(); recompute(); }));
+$('mSel').addEventListener('click', () => { selectMode = true; sel = new Set(); anchor = null; hidePop(); recompute(); });
+$('mDone').addEventListener('click', () => { selectMode = false; sel = new Set(); anchor = null; recompute(); });
+$('mClear').addEventListener('click', () => {
+  if(!sel.size) return;
+  commit();
+  ensureBasis(selList);
+  sel.forEach(p => { delete assign[p]; });
+  sel = new Set();
+  recompute();
+});
+$('mUndo').addEventListener('click', () => $('undoBtn').click());
+$('mUndo2').addEventListener('click', () => $('undoBtn').click());
+$('mRedo').addEventListener('click', () => $('redoBtn').click());
+function closeMore(){ $('moreSheet').classList.remove('open'); }
+$('mMore').addEventListener('click', () => { hidePop(); $('moreSheet').classList.add('open'); });
+$('moreClose').addEventListener('click', closeMore);
+['toLab', 'saveTxt', 'savePng'].forEach(id => $(id).addEventListener('click', closeMore));
+$('savedList').addEventListener('click', e => { if(e.target.closest('button[data-act="edit"]')) closeMore(); });
+['moreSheet', 'mbarMain', 'mbarSel'].forEach(id => $(id).addEventListener('click', e => e.stopPropagation()));
+
 applyDefaults(Defaults.get("setup"));
 renderSaved();
 updateHistoryButtons();
@@ -1367,6 +1617,7 @@ function renderBank(){
     d.style.zIndex = i + 1;
     d.dataset.bank = i;
     d.addEventListener('pointerdown', e => pressStart('bank', i, d, e));
+    d.addEventListener('click', () => { if(isMobile() && !suppressClick) bankTap(i); });
     box.appendChild(d);
   });
 }
@@ -1398,10 +1649,12 @@ function doShuffle(){
 }
 
 // ----- selection and clicking -----
-function hidePop(){ activeSlot = null; $('pop').classList.add('hide'); }
+function hidePop(){ activeSlot = null; $('pop').classList.add('hide'); document.body.classList.remove('sheetopen'); }
 function onCardClick(s, el, e){
   if(suppressClick) return;
   e.stopPropagation();
+  if(bankPick !== null && bank[bankPick]){ placeBanked(s); return; }
+  if(selectMode){ selectTap(s); return; }
   const mod = e.ctrlKey || e.metaKey, shift = e.shiftKey;
   if(mod || shift){
     if(shift){
@@ -1429,6 +1682,8 @@ function pressStart(src, idx, el, e){
   const box = el.getBoundingClientRect();
   const grabX = sx - box.left, grabY = sy - box.top;
   let dragging = false, ghost = null, moving = null;
+  const touch = e.pointerType === 'touch';
+  let lastX = sx, lastY = sy, forceStart = false, pressTimer = null;
 
   function clearDrop(){
     document.querySelectorAll('#l-deckSpread .dropat').forEach(x => x.classList.remove('dropat'));
@@ -1444,8 +1699,12 @@ function pressStart(src, idx, el, e){
     return null;
   }
   function onMove(ev){
+    lastX = ev.clientX; lastY = ev.clientY;
     if(!dragging){
-      if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
+      if(!forceStart){
+        if(touch){ if(Math.hypot(ev.clientX - sx, ev.clientY - sy) > 10) onUp(); return; }
+        if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
+      }
       dragging = true;
       hidePop();
       moving = src === 'deck' ? (sel.has(idx) ? Array.from(sel).sort((a,b)=>a-b) : [idx]) : [idx];
@@ -1462,9 +1721,11 @@ function pressStart(src, idx, el, e){
         ghost.appendChild(b);
       }
       document.body.appendChild(ghost);
+      if(isMobile()) setBanner('Moving ' + moving.length + (moving.length === 1 ? ' card' : ' cards') + '. Release over a position to drop.');
     }
     ghost.style.left = (ev.clientX - grabX) + 'px';
     ghost.style.top = (ev.clientY - grabY) + 'px';
+    if(isMobile()) edgeScroll(ev);
     clearDrop();
     const t = findTarget(ev);
     if(!t) return;
@@ -1480,6 +1741,8 @@ function pressStart(src, idx, el, e){
     }
   }
   function onUp(ev){
+    clearTimeout(pressTimer);
+    Drag.active = false;
     document.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerup', onUp);
     document.removeEventListener('pointercancel', onUp);
@@ -1523,6 +1786,14 @@ function pressStart(src, idx, el, e){
   document.addEventListener('pointermove', onMove);
   document.addEventListener('pointerup', onUp);
   document.addEventListener('pointercancel', onUp);
+  if(touch){
+    pressTimer = setTimeout(() => {
+      forceStart = true;
+      onMove({clientX: lastX, clientY: lastY});
+      Drag.active = true;
+      try{ if(navigator.vibrate) navigator.vibrate(15); }catch(_e){}
+    }, 380);
+  }
 }
 
 // ----- popover (assign a face) -----
@@ -1563,7 +1834,7 @@ function finish(f){
   }
   commit();
   me.face = f;
-  closePop();
+  afterAssign();
 }
 function openPop(slot, el, e){
   if(e) e.stopPropagation();
@@ -1583,7 +1854,9 @@ function openPop(slot, el, e){
   if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
   pop.style.left = left + 'px';
   pop.style.top = top + 'px';
+  document.body.classList.toggle('sheetopen', isMobile());
   recompute();
+  if(isMobile()) revealActive();
 }
 function closePop(){ hidePop(); recompute(); }
 $('popClear').addEventListener('click', () => { commit(); deck[activeSlot - 1].face = null; closePop(); });
@@ -1593,7 +1866,7 @@ document.addEventListener('click', e => {
   if(currentTab !== 'lab') return;
   closeImport();
   if(activeSlot !== null){ closePop(); return; }
-  if(sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
+  if(!selectMode && sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
 });
 buildPop();
 
@@ -1755,6 +2028,131 @@ $('importPanel').addEventListener('click', e => {
   const s = Store.get(b.dataset.id);
   if(s){ closeImport(); importSetup(s.st, b.dataset.which); }
 });
+
+// ----- mobile layout -----
+var selectMode = false, bankPick = null, placedMob = false;
+const moreNodes = ['tbMid','renumberBtn','resetBtn','importBtn'].map(id => $(id));
+const moreHolders = moreNodes.map(n => { const c = document.createComment(''); n.parentNode.insertBefore(c, n); return c; });
+function placeMore(){
+  const mob = isMobile();
+  if(placedMob === mob) return;
+  placedMob = mob;
+  moreNodes.forEach((n, i) => { if(mob) $('moreBody').appendChild(n); else moreHolders[i].after(n); });
+  if(!mob){ selectMode = false; bankPick = null; $('moreSheet').classList.remove('open'); $('bank').classList.remove('open'); }
+}
+function setBanner(t){ $('banner').textContent = t; }
+function bannerText(){
+  if(bankPick !== null && bank[bankPick]) return 'Tap a position to place ' + (bank[bankPick].face ? cardLabel(bank[bankPick].face) : 'card ' + bank[bankPick].id) + '.';
+  if(selectMode) return 'Select mode: tap cards to add or remove. ' + sel.size + ' selected.';
+  return 'Tap a card to assign a face.';
+}
+function optText(){
+  const seq = getSeq();
+  if(mode === 'M') return 'Mixed ' + (seq.join(' ') || 'none') + ', ' + deck.length + ' cards';
+  return 'All ' + (mode === 'I' ? 'In' : 'Out') + ', ' + seq.length + (seq.length === 1 ? ' shuffle' : ' shuffles') + ', ' + deck.length + ' cards';
+}
+function mobSync(){
+  placeMore();
+  if(!isMobile()) return;
+  if(bankPick !== null && !bank[bankPick]) bankPick = null;
+  setBanner(bannerText());
+  $('optTxt').textContent = optText();
+  $('bankChip').textContent = 'Bank (' + bank.length + ')' + (bank.length ? '' : ', empty');
+  $('bankTitle').textContent = 'Bank (' + bank.length + (bank.length === 1 ? ' card)' : ' cards)');
+  $('bankSend').disabled = !sel.size;
+  $('bankRestore').disabled = !bank.length;
+  $('mbarMain').classList.toggle('hide', selectMode);
+  $('mbarSel').classList.toggle('hide', !selectMode);
+  $('mUndo').disabled = $('mUndo2').disabled = !undoStack.length;
+  $('mRedo').disabled = !redoStack.length;
+  $('mHl').disabled = !sel.size;
+  $('mBank').disabled = !sel.size;
+}
+const _recompute = recompute;
+recompute = function(){ _recompute(); mobSync(); };
+MobHooks.push(() => { mobSync(); if(currentTab === 'lab') recompute(); });
+
+function selectTap(s){
+  if(sel.has(s)) sel.delete(s); else sel.add(s);
+  anchor = s;
+  hidePop();
+  recompute();
+}
+function revealActive(){
+  const el = document.querySelector('#l-deckSpread .card[data-slot="' + activeSlot + '"]');
+  if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+}
+function popFill(){
+  const c = deck[activeSlot - 1];
+  $('popTitle').textContent = 'Position ' + activeSlot + (c.id !== activeSlot ? ' (card ' + c.id + ')' : '') + (c.face ? ' (now ' + cardLabel(c.face) + ')' : '');
+  $('popErr').textContent = '';
+  $('popClear').classList.toggle('hide', !c.face);
+  paintPop();
+}
+function gotoSlot(s){
+  s = Math.max(1, Math.min(deck.length, s));
+  activeSlot = s;
+  pickV = null; pickS = null;
+  popFill();
+  recompute();
+  revealActive();
+}
+function afterAssign(){
+  if(isMobile() && $('popAuto').checked && activeSlot < deck.length) gotoSlot(activeSlot + 1);
+  else closePop();
+}
+$('popPrev').addEventListener('click', () => { if(activeSlot) gotoSlot(activeSlot - 1); });
+$('popNext').addEventListener('click', () => { if(activeSlot) gotoSlot(activeSlot + 1); });
+
+function sendSelToBank(){
+  if(!sel.size) return;
+  commit();
+  const moving = Array.from(sel).sort((a, b) => a - b);
+  const set = new Set(moving);
+  moving.forEach(s => bank.push(deck[s-1]));
+  deck = deck.filter((_, i) => !set.has(i+1));
+  sel = new Set(); anchor = null;
+  syncSize();
+  hidePop();
+  recompute();
+}
+function bankTap(i){
+  bankPick = i;
+  closeBank();
+  recompute();
+}
+function placeBanked(s){
+  commit();
+  const card = bank.splice(bankPick, 1)[0];
+  deck.splice(s - 1, 0, card);
+  bankPick = null;
+  sel = new Set([s]); anchor = null;
+  syncSize();
+  hidePop();
+  recompute();
+}
+function closeBank(){ $('bank').classList.remove('open'); }
+function closeMore(){ $('moreSheet').classList.remove('open'); }
+
+$('optSum').addEventListener('click', () => { document.querySelector('#labTab .controls').classList.toggle('open'); });
+$('mSel').addEventListener('click', () => { selectMode = true; sel = new Set(); anchor = null; bankPick = null; hidePop(); recompute(); });
+$('mDone').addEventListener('click', () => { selectMode = false; sel = new Set(); anchor = null; recompute(); });
+$('mShuffle').addEventListener('click', () => $('shuffleBtn').click());
+$('mUndo').addEventListener('click', () => $('undoBtn').click());
+$('mUndo2').addEventListener('click', () => $('undoBtn').click());
+$('mRedo').addEventListener('click', () => $('redoBtn').click());
+$('mHl').addEventListener('click', () => $('hlBtn').click());
+$('mBank').addEventListener('click', sendSelToBank);
+$('bankChip').addEventListener('click', e => { e.stopPropagation(); hidePop(); closeMore(); $('bank').classList.add('open'); });
+$('bankSend').addEventListener('click', sendSelToBank);
+$('bankRestore').addEventListener('click', () => { if(!bank.length) return; commit(); bank.forEach(c => deck.push(c)); bank = []; syncSize(); recompute(); });
+$('bankClose').addEventListener('click', closeBank);
+$('mMore').addEventListener('click', () => { hidePop(); closeBank(); $('moreSheet').classList.add('open'); });
+$('moreClose').addEventListener('click', closeMore);
+['importBtn', 'renumberBtn', 'resetBtn'].forEach(id => $(id).addEventListener('click', closeMore));
+['moreSheet', 'mbarMain', 'mbarSel'].forEach(id => $(id).addEventListener('click', e => e.stopPropagation()));
+$('bank').addEventListener('click', e => { if(isMobile()) e.stopPropagation(); });
+recompute();
 
 return {recompute, hidePop, importSetup, closeImport};
 
