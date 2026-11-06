@@ -213,8 +213,16 @@
   body.mob .card.sel{scroll-margin-bottom:440px;box-shadow:0 0 0 3px #fff;border-color:#fff}
   body.mob .clickable .card.picked{box-shadow:0 0 0 3px #8fc7e8}
   body.mob .ghost .card{width:54px;height:76px}
-  body.mob .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:900;gap:8px;padding:10px 12px calc(14px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
-  body.mob .mbar button{flex:1;padding:12px 4px;font-size:15px;min-width:0}
+  .toast{display:none}
+  body.mob .toast{display:block;position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:950;max-width:calc(100vw - 32px);background:#1d2b2a;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-size:14px;text-align:center;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s}
+  body.mob .toast.show{opacity:1}
+  body.mob .mbar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:900;padding:10px 0 calc(14px + env(safe-area-inset-bottom));background:var(--panel);border-top:1px solid var(--line)}
+  body.mob .mscroll{display:flex;gap:8px;overflow-x:auto;padding:0 12px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;-webkit-mask-image:linear-gradient(to right,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%);mask-image:linear-gradient(to right,transparent 0,#000 var(--fl,0px),#000 calc(100% - var(--fr,0px)),transparent 100%)}
+  body.mob .mscroll::-webkit-scrollbar{display:none}
+  body.mob .mbar button{flex:0 0 auto;padding:12px 16px;font-size:15px;white-space:nowrap}
+  body.mob .mbar button.ar{width:54px;padding:8px 0;font-size:26px;line-height:1;font-family:system-ui,"Segoe UI Symbol","Apple Symbols",sans-serif}
+  body.mob .mbar.msel button{flex:1}
+  body.mob .card.lp{box-shadow:0 0 0 3px var(--accent);transform:scale(1.05);transition:transform .12s}
   body.mob .mbar button.pri{background:var(--accent);color:#2b2622;border-color:var(--accent)}
   body.mob .mbar button:disabled{opacity:.4}
   body.mob .pop,body.mob .msheet.open,body.mob #l-bank.open{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%!important;max-width:none;max-height:80vh;overflow-y:auto;border:0;border-top:2px solid var(--accent);border-radius:14px 14px 0 0;padding:14px 14px 26px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5);z-index:1000;background:var(--panel)}
@@ -236,11 +244,12 @@
   body.mob .msheet .toolbar{margin-top:10px;flex-wrap:wrap}
   body.mob .msheet h2{display:block;margin:16px 0 6px}
   body.mob .srow{flex-wrap:wrap}
-  body.mob #s-undoBtn,body.mob #s-redoBtn{display:none}
+  body.mob #s-undoBtn,body.mob #s-redoBtn,body.mob #s-tbHist,body.mob #s-toLab{display:none}
   body.mob .midrow{display:block;margin:0}
   body.mob .side{display:none}
   body.mob #l-bank{display:none}
   body.mob #l-bank.open{display:block}
+  body.mob #l-bank.open{box-shadow:0 -6px 18px rgba(0,0,0,.3)}
   body.mob #l-bank.open .bl{margin-bottom:10px;font-size:17px;color:var(--text)}
   body.mob .bankcards{display:flex;flex-wrap:wrap;gap:6px;min-height:70px;border:1px dashed var(--line);border-radius:6px;padding:8px}
   body.mob .bankcards .card{width:46px;margin-right:0}
@@ -256,8 +265,10 @@
   .brand svg path[stroke]{stroke:var(--bg)}
   body:not(.mob) .topbar{flex-direction:column;align-items:center;gap:14px;margin-bottom:12px}
   body:not(.mob) .sub{text-align:center}
-  body.mob .brand .wm{display:none}
-  body.mob .brand .ic{display:block}
+  body.mob .topbar{flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;margin-bottom:10px}
+  body.mob .brand .wm{height:58px}
+  body.mob .tabs{width:100%}
+  body.mob .tabs button{flex:1}
 </style>
 </head>
 <body>
@@ -363,20 +374,26 @@
   </div>
 </div>
 
-<div class="mbar" id="s-mbarMain">
-  <button id="s-mUndo">Undo</button>
-  <button id="s-mRedo">Redo</button>
-  <button id="s-mSel">Select</button>
-  <button id="s-mMore">More</button>
-</div>
-<div class="mbar hide" id="s-mbarSel">
-  <button id="s-mUndo2">Undo</button>
+<div class="toast" id="s-toast" role="status" aria-live="polite"></div>
+<div class="mbar" id="s-mbarMain"><div class="mscroll">
+  <button id="s-mUndo" class="ar" aria-label="Undo">&#8630;</button>
+  <button id="s-mRedo" class="ar" aria-label="Redo">&#8631;</button>
+  <button id="s-mMid">Midpoint</button>
+  <button id="s-mSave">Save</button>
+  <button id="s-mLab">Open in Experiment</button>
+  <button id="s-mReset">Reset all</button>
+</div></div>
+<div class="mbar msel hide" id="s-mbarSel"><div class="mscroll">
   <button id="s-mClear">Clear cards</button>
   <button id="s-mDone" class="pri">Done</button>
+</div></div>
+<div class="msheet" id="s-saveSheet">
+  <div class="msh"><b>Save</b><button id="s-saveClose">Close</button></div>
+  <div id="s-saveBody"></div>
 </div>
-<div class="msheet" id="s-moreSheet">
-  <div class="msh"><b>More</b><button id="s-moreClose">Close</button></div>
-  <div id="s-moreBody"></div>
+<div class="msheet" id="s-midSheet">
+  <div class="msh"><b>Midpoint</b><button id="s-midClose">Close</button></div>
+  <div id="s-midBody"></div>
 </div>
 
 </div>
@@ -412,16 +429,16 @@
 
 <div class="banner" id="l-banner"></div>
 <h2>Deck</h2>
-<div class="hint">Click a card to assign a face. Drag cards to move them. Every card keeps the number it started with, so after a shuffle you can see where each one came from. Drag to the bank to remove it. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
+<div class="hint">Click a card to assign a face. Drag cards to move them. Every card keeps the number it started with, so after a shuffle you can see where each one came from. Drag to Discard to remove it. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
 <div class="spread clickable" id="l-deckSpread"></div>
-<button class="bankchip" id="l-bankChip">Bank (0)</button>
+<button class="bankchip" id="l-bankChip">Discard (0)</button>
 
 <div class="midrow">
   <div class="bank" id="l-bank">
-    <div class="bl"><span class="dsk">Bank (drop cards here to remove them from the deck, drag them back to restore)</span><span class="mbl" id="l-bankTitle">Bank</span></div>
+    <div class="bl"><span class="dsk">Discard (drop cards here to remove them from the deck, drag them back to restore)</span><span class="mbl" id="l-bankTitle">Discard</span></div>
     <div class="bankcards" id="l-bankCards"></div>
-    <div class="note bankbtns" style="font-size:12px;color:var(--muted)">Tap a banked card, then tap a position in the deck to put it back.</div>
-    <div class="bankbtns"><button id="l-bankSend">Send selected to bank</button><button id="l-bankRestore">Restore all</button><button id="l-bankClose">Close</button></div>
+    <div class="note bankbtns" style="font-size:12px;color:var(--muted)">Tap a discarded card, then tap a position in the deck to put it back.</div>
+    <div class="bankbtns"><button id="l-bankSend">Send selected to Discard</button><button id="l-bankRestore">Restore all</button><button id="l-bankClose">Close</button></div>
   </div>
   <div class="side">
     <button class="big" id="l-shuffleBtn">Shuffle</button>
@@ -455,22 +472,23 @@
   <div class="foot"><span></span><button id="l-importClose">Close</button></div>
 </div>
 
-<div class="mbar" id="l-mbarMain">
+<div class="mbar" id="l-mbarMain"><div class="mscroll">
   <button id="l-mShuffle" class="pri">Shuffle</button>
-  <button id="l-mUndo">Undo</button>
-  <button id="l-mRedo">Redo</button>
-  <button id="l-mSel">Select</button>
-  <button id="l-mMore">More</button>
-</div>
-<div class="mbar hide" id="l-mbarSel">
-  <button id="l-mUndo2">Undo</button>
+  <button id="l-mUndo" class="ar" aria-label="Undo">&#8630;</button>
+  <button id="l-mRedo" class="ar" aria-label="Redo">&#8631;</button>
+  <button id="l-mMid">Midpoint</button>
+  <button id="l-mRenum">Renumber</button>
+  <button id="l-mImport">Import setup</button>
+  <button id="l-mReset">Reset all</button>
+</div></div>
+<div class="mbar msel hide" id="l-mbarSel"><div class="mscroll">
   <button id="l-mHl">Highlight</button>
-  <button id="l-mBank">To bank</button>
+  <button id="l-mBank">Discard</button>
   <button id="l-mDone" class="pri">Done</button>
-</div>
-<div class="msheet" id="l-moreSheet">
-  <div class="msh"><b>More</b><button id="l-moreClose">Close</button></div>
-  <div id="l-moreBody"></div>
+</div></div>
+<div class="msheet" id="l-midSheet">
+  <div class="msh"><b>Midpoint</b><button id="l-midClose">Close</button></div>
+  <div id="l-midBody"></div>
 </div>
 
 </div>
@@ -641,6 +659,14 @@ if(MQ.addEventListener) MQ.addEventListener('change', () => { applyMob(); MobHoo
 const Drag = {active:false};
 document.addEventListener('touchmove', e => { if(Drag.active && e.cancelable) e.preventDefault(); }, {passive:false});
 document.addEventListener('contextmenu', e => { if(isMobile() && e.target.closest && e.target.closest('.card')) e.preventDefault(); });
+function mscrollFade(sc){
+  const max = sc.scrollWidth - sc.clientWidth;
+  sc.style.setProperty('--fl', sc.scrollLeft > 2 ? '28px' : '0px');
+  sc.style.setProperty('--fr', sc.scrollLeft < max - 2 ? '28px' : '0px');
+}
+function fadeAll(){ document.querySelectorAll('.mscroll').forEach(mscrollFade); }
+document.querySelectorAll('.mscroll').forEach(sc => sc.addEventListener('scroll', () => mscrollFade(sc), {passive:true}));
+window.addEventListener('resize', fadeAll);
 function edgeScroll(ev){
   const y = ev.clientY, h = window.innerHeight;
   if(y < 90) window.scrollBy(0, -14); else if(y > h - 130) window.scrollBy(0, 14);
@@ -747,6 +773,7 @@ function recompute(){
       list === 'start' && showMid ? markMap(midpoints(seq, N, midWhich)) : null,
       selList === list ? sel : null);
     el.querySelectorAll('.card.has').forEach(d => d.addEventListener('pointerdown', e => pressStart(list, +d.dataset.pos, d, e)));
+    el.querySelectorAll('.card:not(.has)').forEach(d => d.addEventListener('pointerdown', e => { if(e.pointerType === 'touch' && isMobile()) emptyPress(e); }));
   });
   $('seqLine').innerHTML = !seq.length ? 'No shuffles. Starting and ending positions are the same.'
     : (mode === 'M' ? 'Shuffles in order: <b>' + seq.map(x => x==='I' ? 'In' : 'Out').join(', ') + '</b>' : '');
@@ -780,7 +807,6 @@ function hidePop(){ activePos = null; activeList = null; $('pop').classList.add(
 function onCardClick(list, p, el, e){
   if(suppressClick) return;
   e.stopPropagation();
-  if(selectMode){ selectTap(list, p); return; }
   const map = view(getSeq())[list];
   const mod = e.ctrlKey || e.metaKey, shift = e.shiftKey;
   if(mod || shift){
@@ -799,7 +825,7 @@ function onCardClick(list, p, el, e){
     recompute();
     return;
   }
-  sel = new Set();
+  if(!isMobile() || selList !== list) sel = new Set();
   selList = list;
   anchor = p;
   openPop(list, p, el, e);
@@ -814,7 +840,7 @@ function pressStart(list, p, el, e){
   const spreadSel = '#s-' + list + 'Spread';
   let dragging = false, ghost = null, moving = null;
   const touch = e.pointerType === 'touch';
-  let lastX = sx, lastY = sy, forceStart = false, pressTimer = null;
+  let lastX = sx, lastY = sy, longFired = false, pressTimer = null;
 
   function clearDrop(){ document.querySelectorAll(spreadSel + ' .dropat').forEach(x => x.classList.remove('dropat')); }
   function overPos(ev){
@@ -825,11 +851,13 @@ function pressStart(list, p, el, e){
   function onMove(ev){
     lastX = ev.clientX; lastY = ev.clientY;
     if(!dragging){
-      if(!forceStart){
-        if(touch){ if(Math.hypot(ev.clientX - sx, ev.clientY - sy) > 10) onUp(); return; }
-        if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
-      }
+      const mv = Math.hypot(ev.clientX - sx, ev.clientY - sy);
+      if(touch){
+        if(!longFired){ if(mv > 10) onUp(); return; }
+        if(mv < 8) return;
+      } else if(mv < 5) return;
       dragging = true;
+      el.classList.remove('lp');
       hidePop();
       moving = (selList === list && sel.has(p)) ? Array.from(sel).sort((a,b)=>a-b) : [p];
       ghost = document.createElement('div');
@@ -863,10 +891,16 @@ function pressStart(list, p, el, e){
   function onUp(ev){
     clearTimeout(pressTimer);
     Drag.active = false;
+    el.classList.remove('lp');
+    const wasLong = longFired && !dragging && !!ev && ev.type === 'pointerup';
     document.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerup', onUp);
     document.removeEventListener('pointercancel', onUp);
-    if(!dragging) return;
+    if(!dragging){
+      if(longFired){ suppressClick = true; setTimeout(() => { suppressClick = false; }, 60); }
+      if(wasLong){ selectTap(list, p); }
+      return;
+    }
     clearDrop();
     if(ghost) ghost.remove();
     suppressClick = true;
@@ -878,7 +912,7 @@ function pressStart(list, p, el, e){
       if(r.offset !== 0) commit();
       assign = r.next;
       basis = list;
-      sel = new Set(r.moved);
+      sel = isMobile() ? new Set() : new Set(r.moved);
       selList = list;
       anchor = null;
     }
@@ -889,9 +923,9 @@ function pressStart(list, p, el, e){
   document.addEventListener('pointercancel', onUp);
   if(touch){
     pressTimer = setTimeout(() => {
-      forceStart = true;
-      onMove({clientX: lastX, clientY: lastY});
+      longFired = true;
       Drag.active = true;
+      el.classList.add('lp');
       try{ if(navigator.vibrate) navigator.vibrate(15); }catch(_e){}
     }, 380);
   }
@@ -967,7 +1001,7 @@ document.addEventListener('click', e => {
   if(currentTab !== 'setup') return;
   closeMp();
   if(activePos){ closePop(); return; }
-  if(!selectMode && sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
+  if(!isMobile() && sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
 });
 buildPop();
 
@@ -1416,21 +1450,24 @@ $('savedList').addEventListener('click', e => {
 Store.onChange(renderSaved);
 
 // ----- mobile layout -----
-let selectMode = false, mobView = 'end', placedMob = false;
-const moreNodes = ['tbSave','editBanner','savedH','savedList','tbBk','tbHist'].map(id => $(id));
-const moreHolders = moreNodes.map(n => { const c = document.createComment(''); n.parentNode.insertBefore(c, n); return c; });
+let mobView = 'end', placedMob = false;
+const moveSpec = [
+  [$('tbSave'), 'saveBody'], [$('editBanner'), 'saveBody'], [$('savedH'), 'saveBody'], [$('savedList'), 'saveBody'], [$('tbBk'), 'saveBody'],
+  [$('showMid').closest('label'), 'midBody'], [$('midWhich'), 'midBody']
+];
+const moveHolders = moveSpec.map(([n]) => { const c = document.createComment(''); n.parentNode.insertBefore(c, n); return c; });
 function placeMore(){
   const mob = isMobile();
   if(placedMob === mob) return;
   placedMob = mob;
-  moreNodes.forEach((n, i) => { if(mob) $('moreBody').appendChild(n); else moreHolders[i].after(n); });
-  if(!mob){ selectMode = false; $('moreSheet').classList.remove('open'); }
+  moveSpec.forEach(([n, t], i) => { if(mob) $(t).appendChild(n); else moveHolders[i].after(n); });
+  if(!mob) closeSheets();
 }
 function setBanner(t){ $('banner').textContent = t; }
 function bannerText(){
-  if(selectMode) return 'Select mode: tap cards to add or remove. ' + sel.size + ' selected.';
+  if(sel.size) return sel.size + ' selected. Drag to move, or use the buttons below.';
   const ed = editingId ? Store.get(editingId) : null;
-  return (ed ? 'Editing "' + ed.name + '". ' : '') + 'Tap a position to assign a card.';
+  return (ed ? 'Editing "' + ed.name + '". ' : '') + 'Tap a position to assign a card. Hold to select.';
 }
 function optText(){
   const seq = getSeq();
@@ -1444,20 +1481,38 @@ function mobSync(){
   $('switch').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.l === mobView));
   setBanner(bannerText());
   $('optTxt').textContent = optText();
-  $('mbarMain').classList.toggle('hide', selectMode);
-  $('mbarSel').classList.toggle('hide', !selectMode);
-  $('mUndo').disabled = $('mUndo2').disabled = !undoStack.length;
+  $('mbarMain').classList.toggle('hide', sel.size > 0);
+  $('mbarSel').classList.toggle('hide', sel.size === 0);
+  $('mUndo').disabled = !undoStack.length;
   $('mRedo').disabled = !redoStack.length;
-  $('mClear').disabled = !sel.size;
+  fadeAll();
 }
 const _recompute = recompute;
 recompute = function(){ _recompute(); mobSync(); };
 MobHooks.push(() => { mobSync(); if(currentTab === 'setup') recompute(); });
 
+let toastT = null;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1800); }
+function emptyPress(e){
+  const sx = e.clientX, sy = e.clientY;
+  let fired = false;
+  const t = setTimeout(() => { fired = true; toast('Please select an assigned card'); try{ if(navigator.vibrate) navigator.vibrate(15); }catch(_e){} }, 380);
+  function mv(ev){ if(Math.hypot(ev.clientX - sx, ev.clientY - sy) > 10) clearTimeout(t); }
+  function end(){
+    clearTimeout(t);
+    document.removeEventListener('pointermove', mv);
+    document.removeEventListener('pointerup', end);
+    document.removeEventListener('pointercancel', end);
+    if(fired){ suppressClick = true; setTimeout(() => { suppressClick = false; }, 60); }
+  }
+  document.addEventListener('pointermove', mv);
+  document.addEventListener('pointerup', end);
+  document.addEventListener('pointercancel', end);
+}
 function selectTap(list, p){
   const map = view(getSeq())[list];
+  if(!map[p]){ toast('Please select an assigned card'); return; }
   if(selList !== list){ sel = new Set(); anchor = null; selList = list; }
-  if(!map[p]) return;
   if(sel.has(p)) sel.delete(p); else sel.add(p);
   anchor = p;
   hidePop();
@@ -1492,8 +1547,7 @@ $('popNext').addEventListener('click', () => { if(activePos) gotoPos(activePos +
 
 $('optSum').addEventListener('click', () => { document.querySelector('#setupTab .controls').classList.toggle('open'); });
 $('switch').querySelectorAll('button').forEach(b => b.addEventListener('click', () => { mobView = b.dataset.l; hidePop(); recompute(); }));
-$('mSel').addEventListener('click', () => { selectMode = true; sel = new Set(); anchor = null; hidePop(); recompute(); });
-$('mDone').addEventListener('click', () => { selectMode = false; sel = new Set(); anchor = null; recompute(); });
+$('mDone').addEventListener('click', () => { sel = new Set(); anchor = null; recompute(); });
 $('mClear').addEventListener('click', () => {
   if(!sel.size) return;
   commit();
@@ -1503,14 +1557,18 @@ $('mClear').addEventListener('click', () => {
   recompute();
 });
 $('mUndo').addEventListener('click', () => $('undoBtn').click());
-$('mUndo2').addEventListener('click', () => $('undoBtn').click());
 $('mRedo').addEventListener('click', () => $('redoBtn').click());
-function closeMore(){ $('moreSheet').classList.remove('open'); }
-$('mMore').addEventListener('click', () => { hidePop(); $('moreSheet').classList.add('open'); });
-$('moreClose').addEventListener('click', closeMore);
-['toLab', 'saveTxt', 'savePng'].forEach(id => $(id).addEventListener('click', closeMore));
-$('savedList').addEventListener('click', e => { if(e.target.closest('button[data-act="edit"]')) closeMore(); });
-['moreSheet', 'mbarMain', 'mbarSel'].forEach(id => $(id).addEventListener('click', e => e.stopPropagation()));
+$('mReset').addEventListener('click', () => { hidePop(); closeSheets(); $('resetBtn').click(); });
+$('mLab').addEventListener('click', () => { hidePop(); closeSheets(); $('toLab').click(); });
+function closeSheets(){ ['saveSheet', 'midSheet'].forEach(id => $(id).classList.remove('open')); }
+function openSheet(id){ hidePop(); closeSheets(); $(id).classList.add('open'); }
+$('mSave').addEventListener('click', () => openSheet('saveSheet'));
+$('mMid').addEventListener('click', () => openSheet('midSheet'));
+$('saveClose').addEventListener('click', closeSheets);
+$('midClose').addEventListener('click', closeSheets);
+['saveTxt', 'savePng'].forEach(id => $(id).addEventListener('click', closeSheets));
+$('savedList').addEventListener('click', e => { if(e.target.closest('button[data-act="edit"]')) closeSheets(); });
+['saveSheet', 'midSheet', 'mbarMain', 'mbarSel'].forEach(id => $(id).addEventListener('click', e => e.stopPropagation()));
 
 applyDefaults(Defaults.get("setup"));
 renderSaved();
@@ -1668,7 +1726,6 @@ function onCardClick(s, el, e){
   if(suppressClick) return;
   e.stopPropagation();
   if(bankPick !== null && bank[bankPick]){ placeBanked(s); return; }
-  if(selectMode){ selectTap(s); return; }
   const mod = e.ctrlKey || e.metaKey, shift = e.shiftKey;
   if(mod || shift){
     if(shift){
@@ -1684,7 +1741,7 @@ function onCardClick(s, el, e){
     recompute();
     return;
   }
-  sel = new Set();
+  if(!isMobile()) sel = new Set();
   anchor = s;
   openPop(s, el, e);
 }
@@ -1697,7 +1754,7 @@ function pressStart(src, idx, el, e){
   const grabX = sx - box.left, grabY = sy - box.top;
   let dragging = false, ghost = null, moving = null;
   const touch = e.pointerType === 'touch';
-  let lastX = sx, lastY = sy, forceStart = false, pressTimer = null;
+  let lastX = sx, lastY = sy, longFired = false, pressTimer = null;
 
   function clearDrop(){
     document.querySelectorAll('#l-deckSpread .dropat').forEach(x => x.classList.remove('dropat'));
@@ -1715,11 +1772,13 @@ function pressStart(src, idx, el, e){
   function onMove(ev){
     lastX = ev.clientX; lastY = ev.clientY;
     if(!dragging){
-      if(!forceStart){
-        if(touch){ if(Math.hypot(ev.clientX - sx, ev.clientY - sy) > 10) onUp(); return; }
-        if(Math.hypot(ev.clientX - sx, ev.clientY - sy) < 5) return;
-      }
+      const mv = Math.hypot(ev.clientX - sx, ev.clientY - sy);
+      if(touch){
+        if(!longFired){ if(mv > 10) onUp(); return; }
+        if(mv < 8) return;
+      } else if(mv < 5) return;
       dragging = true;
+      el.classList.remove('lp');
       hidePop();
       moving = src === 'deck' ? (sel.has(idx) ? Array.from(sel).sort((a,b)=>a-b) : [idx]) : [idx];
       ghost = document.createElement('div');
@@ -1741,6 +1800,7 @@ function pressStart(src, idx, el, e){
     ghost.style.top = (ev.clientY - grabY) + 'px';
     if(isMobile()) edgeScroll(ev);
     clearDrop();
+    dragBankHover(ev, src);
     const t = findTarget(ev);
     if(!t) return;
     if(t.type === 'bank'){ if(src === 'deck') $('bank').classList.add('dropat'); return; }
@@ -1757,10 +1817,16 @@ function pressStart(src, idx, el, e){
   function onUp(ev){
     clearTimeout(pressTimer);
     Drag.active = false;
+    el.classList.remove('lp');
+    const wasLong = longFired && !dragging && !!ev && ev.type === 'pointerup';
     document.removeEventListener('pointermove', onMove);
     document.removeEventListener('pointerup', onUp);
     document.removeEventListener('pointercancel', onUp);
-    if(!dragging) return;
+    if(!dragging){
+      if(longFired){ suppressClick = true; setTimeout(() => { suppressClick = false; }, 60); }
+      if(wasLong){ if(src === 'deck') selectTap(idx); }
+      return;
+    }
     clearDrop();
     if(ghost) ghost.remove();
     suppressClick = true;
@@ -1779,7 +1845,7 @@ function pressStart(src, idx, el, e){
           commit();
           const r = moveInsert(deck, moving, t.q);
           deck = r.out;
-          sel = new Set(r.newSlots); anchor = null;
+          sel = isMobile() ? new Set() : new Set(r.newSlots); anchor = null;
         }
       } else {
         const card = bank[idx];
@@ -1790,11 +1856,12 @@ function pressStart(src, idx, el, e){
           commit();
           bank.splice(idx, 1);
           deck.splice(q - 1, 0, card);
-          sel = new Set([q]); anchor = null;
+          sel = isMobile() ? new Set() : new Set([q]); anchor = null;
           syncSize();
         }
       }
     }
+    closeDragBank();
     recompute();
   }
   document.addEventListener('pointermove', onMove);
@@ -1802,9 +1869,9 @@ function pressStart(src, idx, el, e){
   document.addEventListener('pointercancel', onUp);
   if(touch){
     pressTimer = setTimeout(() => {
-      forceStart = true;
-      onMove({clientX: lastX, clientY: lastY});
+      longFired = true;
       Drag.active = true;
+      el.classList.add('lp');
       try{ if(navigator.vibrate) navigator.vibrate(15); }catch(_e){}
     }, 380);
   }
@@ -1841,7 +1908,7 @@ function finish(f){
   }
   for(let i=0;i<bank.length;i++){
     if(bank[i].face && cardKey(bank[i].face) === key){
-      $('popErr').textContent = cardLabel(f) + ' is already in the bank.';
+      $('popErr').textContent = cardLabel(f) + ' is already in Discard.';
       pickV = null; pickS = null; paintPop();
       return;
     }
@@ -1880,7 +1947,7 @@ document.addEventListener('click', e => {
   if(currentTab !== 'lab') return;
   closeImport();
   if(activeSlot !== null){ closePop(); return; }
-  if(!selectMode && sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
+  if(!isMobile() && sel.size && !e.target.closest('.card') && !e.target.closest('.pop')){ sel = new Set(); recompute(); }
 });
 buildPop();
 
@@ -1918,7 +1985,7 @@ $('renumberBtn').addEventListener('click', () => {
 });
 // Reset everything back to the starting state: fresh 54 card blank deck, empty bank, default settings.
 $('resetBtn').addEventListener('click', () => {
-  if(!confirm('Reset everything? This clears the deck, the bank and all assigned cards, and returns the options to your saved defaults.')) return;
+  if(!confirm('Reset everything? This clears the deck, Discard and all assigned cards, and returns the options to your saved defaults.')) return;
   commit();
   nextId = 1;
   const d = Defaults.get('lab');
@@ -2044,21 +2111,21 @@ $('importPanel').addEventListener('click', e => {
 });
 
 // ----- mobile layout -----
-var selectMode = false, bankPick = null, placedMob = false;
-const moreNodes = ['tbMid','renumberBtn','resetBtn','importBtn'].map(id => $(id));
-const moreHolders = moreNodes.map(n => { const c = document.createComment(''); n.parentNode.insertBefore(c, n); return c; });
+var bankPick = null, placedMob = false;
+const moveSpec = [[$('tbMid'), 'midBody']];
+const moveHolders = moveSpec.map(([n]) => { const c = document.createComment(''); n.parentNode.insertBefore(c, n); return c; });
 function placeMore(){
   const mob = isMobile();
   if(placedMob === mob) return;
   placedMob = mob;
-  moreNodes.forEach((n, i) => { if(mob) $('moreBody').appendChild(n); else moreHolders[i].after(n); });
-  if(!mob){ selectMode = false; bankPick = null; $('moreSheet').classList.remove('open'); $('bank').classList.remove('open'); }
+  moveSpec.forEach(([n, t], i) => { if(mob) $(t).appendChild(n); else moveHolders[i].after(n); });
+  if(!mob){ bankPick = null; closeSheets(); $('bank').classList.remove('open'); }
 }
 function setBanner(t){ $('banner').textContent = t; }
 function bannerText(){
   if(bankPick !== null && bank[bankPick]) return 'Tap a position to place ' + (bank[bankPick].face ? cardLabel(bank[bankPick].face) : 'card ' + bank[bankPick].id) + '.';
-  if(selectMode) return 'Select mode: tap cards to add or remove. ' + sel.size + ' selected.';
-  return 'Tap a card to assign a face.';
+  if(sel.size) return sel.size + ' selected. Drag to move, or tap Highlight or Discard.';
+  return 'Tap a card to assign a face. Hold to select.';
 }
 function optText(){
   const seq = getSeq();
@@ -2071,16 +2138,15 @@ function mobSync(){
   if(bankPick !== null && !bank[bankPick]) bankPick = null;
   setBanner(bannerText());
   $('optTxt').textContent = optText();
-  $('bankChip').textContent = 'Bank (' + bank.length + ')' + (bank.length ? '' : ', empty');
-  $('bankTitle').textContent = 'Bank (' + bank.length + (bank.length === 1 ? ' card)' : ' cards)');
+  $('bankChip').textContent = 'Discard (' + bank.length + ')' + (bank.length ? '' : ', empty');
+  $('bankTitle').textContent = 'Discard (' + bank.length + (bank.length === 1 ? ' card)' : ' cards)');
   $('bankSend').disabled = !sel.size;
   $('bankRestore').disabled = !bank.length;
-  $('mbarMain').classList.toggle('hide', selectMode);
-  $('mbarSel').classList.toggle('hide', !selectMode);
-  $('mUndo').disabled = $('mUndo2').disabled = !undoStack.length;
+  $('mbarMain').classList.toggle('hide', sel.size > 0);
+  $('mbarSel').classList.toggle('hide', sel.size === 0);
+  $('mUndo').disabled = !undoStack.length;
   $('mRedo').disabled = !redoStack.length;
-  $('mHl').disabled = !sel.size;
-  $('mBank').disabled = !sel.size;
+  fadeAll();
 }
 const _recompute = recompute;
 recompute = function(){ _recompute(); mobSync(); };
@@ -2140,31 +2206,42 @@ function placeBanked(s){
   const card = bank.splice(bankPick, 1)[0];
   deck.splice(s - 1, 0, card);
   bankPick = null;
-  sel = new Set([s]); anchor = null;
+  sel = new Set(); anchor = null;
   syncSize();
   hidePop();
   recompute();
 }
 function closeBank(){ $('bank').classList.remove('open'); }
-function closeMore(){ $('moreSheet').classList.remove('open'); }
+var bankByDrag = false;
+function dragBankHover(ev, src){
+  if(!isMobile() || src !== 'deck') return;
+  const u = document.elementFromPoint(ev.clientX, ev.clientY);
+  const overChip = !!(u && u.closest && u.closest('#l-bankChip, #l-mBank'));
+  const overBank = !!(u && u.closest && u.closest('#l-bank'));
+  const open = $('bank').classList.contains('open');
+  if(overChip && !open){ $('bank').classList.add('open'); bankByDrag = true; }
+  else if(bankByDrag && !overChip && !overBank){ $('bank').classList.remove('open'); bankByDrag = false; }
+}
+function closeDragBank(){ if(bankByDrag){ bankByDrag = false; $('bank').classList.remove('open'); } }
+function closeSheets(){ $('midSheet').classList.remove('open'); }
 
 $('optSum').addEventListener('click', () => { document.querySelector('#labTab .controls').classList.toggle('open'); });
-$('mSel').addEventListener('click', () => { selectMode = true; sel = new Set(); anchor = null; bankPick = null; hidePop(); recompute(); });
-$('mDone').addEventListener('click', () => { selectMode = false; sel = new Set(); anchor = null; recompute(); });
+$('mDone').addEventListener('click', () => { sel = new Set(); anchor = null; recompute(); });
 $('mShuffle').addEventListener('click', () => $('shuffleBtn').click());
 $('mUndo').addEventListener('click', () => $('undoBtn').click());
-$('mUndo2').addEventListener('click', () => $('undoBtn').click());
 $('mRedo').addEventListener('click', () => $('redoBtn').click());
 $('mHl').addEventListener('click', () => $('hlBtn').click());
 $('mBank').addEventListener('click', sendSelToBank);
-$('bankChip').addEventListener('click', e => { e.stopPropagation(); hidePop(); closeMore(); $('bank').classList.add('open'); });
+$('bankChip').addEventListener('click', e => { e.stopPropagation(); hidePop(); closeSheets(); $('bank').classList.add('open'); });
 $('bankSend').addEventListener('click', sendSelToBank);
 $('bankRestore').addEventListener('click', () => { if(!bank.length) return; commit(); bank.forEach(c => deck.push(c)); bank = []; syncSize(); recompute(); });
 $('bankClose').addEventListener('click', closeBank);
-$('mMore').addEventListener('click', () => { hidePop(); closeBank(); $('moreSheet').classList.add('open'); });
-$('moreClose').addEventListener('click', closeMore);
-['importBtn', 'renumberBtn', 'resetBtn'].forEach(id => $(id).addEventListener('click', closeMore));
-['moreSheet', 'mbarMain', 'mbarSel'].forEach(id => $(id).addEventListener('click', e => e.stopPropagation()));
+$('mMid').addEventListener('click', () => { hidePop(); closeBank(); $('midSheet').classList.add('open'); });
+$('midClose').addEventListener('click', closeSheets);
+$('mRenum').addEventListener('click', () => { hidePop(); closeSheets(); closeBank(); $('renumberBtn').click(); });
+$('mImport').addEventListener('click', () => { hidePop(); closeSheets(); closeBank(); $('importBtn').click(); });
+$('mReset').addEventListener('click', () => { hidePop(); closeSheets(); closeBank(); $('resetBtn').click(); });
+['midSheet', 'mbarMain', 'mbarSel'].forEach(id => $(id).addEventListener('click', e => e.stopPropagation()));
 $('bank').addEventListener('click', e => { if(isMobile()) e.stopPropagation(); });
 recompute();
 
