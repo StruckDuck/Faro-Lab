@@ -183,8 +183,12 @@
   .pop .head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
   .pop .head .t{margin:0;flex:1}
   .msh{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:17px}
-  body.mob{padding:14px 14px 116px}
-  body.mob.sheetopen{padding-bottom:480px}
+  html.mobhtml{overflow:hidden;height:100%;overscroll-behavior:none}
+  body.mob{box-sizing:border-box;height:100vh;height:100dvh;overflow:hidden;padding:12px 14px 0;display:flex;flex-direction:column}
+  body.mob .topbar{flex:none}
+  body.mob #setupTab:not(.hide),body.mob #labTab:not(.hide){display:flex;flex-direction:column;flex:1 1 0;min-height:0;padding-bottom:calc(var(--barh,86px) + 8px)}
+  body.mob #setupTab > *,body.mob #labTab > *{flex:none}
+  body.mob #s-endSpread,body.mob #s-startSpread,body.mob #l-deckSpread{flex:1 1 0;min-height:0}
   body.mob,body.mob *{-webkit-tap-highlight-color:transparent}
   body.mob .sub,body.mob .hint{display:none}
   body.mob #setupTab > h2,body.mob #labTab > h2{display:none}
@@ -205,11 +209,11 @@
   body.mob .spread{overflow:visible;padding:0}
   body.mob .spread{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
   body.mob .row{display:contents}
-  body.mob .card{position:relative;left:auto!important;top:auto;z-index:auto!important;width:auto;height:62px;touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;box-shadow:-1px 1px 3px rgba(0,0,0,.35)}
+  body.mob .card{position:relative;left:auto!important;top:auto;z-index:auto!important;width:auto;height:auto;min-height:0;overflow:hidden;touch-action:pan-y;-webkit-touch-callout:none;-webkit-user-select:none;box-shadow:-1px 1px 3px rgba(0,0,0,.35)}
   body.mob .card .idx{top:3px;left:4px;min-width:0}
-  body.mob .card .idx .v,body.mob .card .idx .s{font-size:15px}
-  body.mob .card .pos{left:4px;bottom:3px;font-size:11px}
-  body.mob .card .mk{left:auto;right:3px;top:3px;transform:none;font-size:10px;max-width:none}
+  body.mob .card .idx .v,body.mob .card .idx .s{font-size:var(--cf,15px);line-height:1.05}
+  body.mob .card .pos{left:4px;bottom:3px;font-size:var(--cp,11px)}
+  body.mob .card .mk{left:auto;right:3px;top:3px;transform:none;font-size:var(--cp,10px);max-width:none}
   body.mob .clickable .card:hover{box-shadow:-1px 1px 3px rgba(0,0,0,.35)}
   body.mob .card.mid,body.mob .clickable .card.mid:hover{box-shadow:0 0 0 2px var(--accent)}
   body.mob .card.sel{scroll-margin-bottom:440px;box-shadow:0 0 0 3px #fff;border-color:#fff}
@@ -229,6 +233,7 @@
   body.mob .mbar button:disabled{opacity:.4}
   body.mob .pop,body.mob .msheet.open,body.mob #l-bank.open{position:fixed!important;left:0!important;right:0!important;top:auto!important;bottom:0!important;width:100%!important;max-width:none;max-height:80vh;overflow-y:auto;border:0;border-top:2px solid var(--accent);border-radius:14px 14px 0 0;padding:14px 14px 26px;box-shadow:0 0 0 100vmax rgba(0,0,0,.5);z-index:1000;background:var(--panel)}
   body.mob .msheet.open{display:block}
+  body.mob .pop.dock-top{top:0!important;bottom:auto!important;border-top:0;border-bottom:2px solid var(--accent);border-radius:0 0 14px 14px;padding-top:max(14px,env(safe-area-inset-top,0px))}
   body.mob .pop .t{font-size:16px}
   body.mob .pop .mnav{display:block;width:44px;height:40px;padding:0;font-size:16px}
   body.mob .pop .grid{gap:6px}
@@ -254,7 +259,7 @@
   body.mob #l-bank.open{box-shadow:0 -6px 18px rgba(0,0,0,.3)}
   body.mob #l-bank.open .bl{margin-bottom:10px;font-size:17px;color:var(--text)}
   body.mob .bankcards{display:flex;flex-wrap:wrap;gap:6px;min-height:70px;border:1px dashed var(--line);border-radius:6px;padding:8px}
-  body.mob .bankcards .card{width:46px;margin-right:0}
+  body.mob .bankcards .card{width:46px;height:64px;margin-right:0}
   body.mob .bankchip{display:block;width:100%;margin-top:10px;padding:10px;font-size:14px;text-align:left}
   body.mob .bankbtns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
   body.mob .bankbtns button{flex:1;padding:10px 6px;font-size:14px}
@@ -655,7 +660,7 @@ let currentTab = 'setup';
 const MQ = window.matchMedia ? window.matchMedia('(max-width: 700px)') : {matches:false};
 function isMobile(){ return !!MQ.matches; }
 const MobHooks = [];
-function applyMob(){ document.body.classList.toggle('mob', isMobile()); if(!isMobile()) document.body.classList.remove('sheetopen'); }
+function applyMob(){ document.body.classList.toggle('mob', isMobile()); document.documentElement.classList.toggle('mobhtml', isMobile()); if(!isMobile()) document.body.classList.remove('sheetopen'); }
 applyMob();
 if(MQ.addEventListener) MQ.addEventListener('change', () => { applyMob(); MobHooks.forEach(f => f()); });
 const Drag = {active:false};
@@ -663,12 +668,34 @@ document.addEventListener('touchmove', e => { if(Drag.active && e.cancelable) e.
 document.addEventListener('contextmenu', e => { if(isMobile() && e.target.closest && e.target.closest('.card')) e.preventDefault(); });
 function mscrollFade(sc){
   const max = sc.scrollWidth - sc.clientWidth;
-  sc.style.setProperty('--fl', sc.scrollLeft > 2 ? '28px' : '0px');
-  sc.style.setProperty('--fr', sc.scrollLeft < max - 2 ? '28px' : '0px');
+  sc.style.setProperty('--fl', sc.scrollLeft > 2 ? '64px' : '0px');
+  sc.style.setProperty('--fr', sc.scrollLeft < max - 2 ? '64px' : '0px');
 }
 function fadeAll(){ document.querySelectorAll('.mscroll, .controls').forEach(mscrollFade); }
 document.querySelectorAll('.mscroll, .controls').forEach(sc => sc.addEventListener('scroll', () => mscrollFade(sc), {passive:true}));
 window.addEventListener('resize', fadeAll);
+function setBarH(){
+  const b = document.querySelector('.mbar:not(.hide)');
+  if(b && b.offsetHeight) document.documentElement.style.setProperty('--barh', b.offsetHeight + 'px');
+}
+function fitGrid(el, n){
+  if(!isMobile() || !el || !n) return;
+  const W = el.clientWidth, H = el.clientHeight;
+  if(W < 60 || H < 60) return;
+  const gap = 6;
+  let best = null;
+  for(let c = 4; c <= 14; c++){
+    const r = Math.ceil(n / c);
+    const cw = (W - gap * (c - 1)) / c, ch = (H - gap * (r - 1)) / r;
+    const sc = Math.min(cw, ch / 1.35);
+    if(!best || sc > best.sc + 0.01) best = {c, r, cw, ch, sc};
+  }
+  el.style.gridTemplateColumns = 'repeat(' + best.c + ',minmax(0,1fr))';
+  el.style.gridTemplateRows = 'repeat(' + best.r + ',minmax(0,1fr))';
+  el.style.setProperty('--cf', Math.max(9, Math.min(15, best.ch * 0.27)) + 'px');
+  el.style.setProperty('--cp', Math.max(8, Math.min(11, best.ch * 0.19)) + 'px');
+}
+window.addEventListener('resize', () => { if(isMobile()){ setBarH(); (currentTab === 'setup' ? SetupApp : LabApp).recompute(); } });
 function edgeScroll(ev){
   const y = ev.clientY, h = window.innerHeight;
   if(y < 90) window.scrollBy(0, -14); else if(y > h - 130) window.scrollBy(0, 14);
@@ -1487,6 +1514,8 @@ function mobSync(){
   $('mbarSel').classList.toggle('hide', sel.size === 0);
   $('mUndo').disabled = !undoStack.length;
   $('mRedo').disabled = !redoStack.length;
+  setBarH();
+  fitGrid($(mobView === 'end' ? 'endSpread' : 'startSpread'), N);
   fadeAll();
 }
 const _recompute = recompute;
@@ -1521,8 +1550,14 @@ function selectTap(list, p){
   recompute();
 }
 function revealActive(){
+  if(!isMobile()) return;
+  const pop = $('pop');
   const el = document.querySelector('#s-' + activeList + 'Spread .card[data-pos="' + activePos + '"]');
-  if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+  if(!el || pop.classList.contains('hide')) return;
+  const r = el.getBoundingClientRect(), h = pop.offsetHeight;
+  const topOv = Math.max(0, Math.min(r.bottom, h) - Math.max(r.top, 0));
+  const botOv = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, innerHeight - h));
+  pop.classList.toggle('dock-top', botOv > topOv);
 }
 function popFill(){
   const cur = view(getSeq())[activeList][activePos];
@@ -2148,6 +2183,8 @@ function mobSync(){
   $('mbarSel').classList.toggle('hide', sel.size === 0);
   $('mUndo').disabled = !undoStack.length;
   $('mRedo').disabled = !redoStack.length;
+  setBarH();
+  fitGrid($('deckSpread'), deck.length);
   fadeAll();
 }
 const _recompute = recompute;
@@ -2161,8 +2198,14 @@ function selectTap(s){
   recompute();
 }
 function revealActive(){
+  if(!isMobile()) return;
+  const pop = $('pop');
   const el = document.querySelector('#l-deckSpread .card[data-slot="' + activeSlot + '"]');
-  if(el && el.scrollIntoView) el.scrollIntoView({block:'nearest'});
+  if(!el || pop.classList.contains('hide')) return;
+  const r = el.getBoundingClientRect(), h = pop.offsetHeight;
+  const topOv = Math.max(0, Math.min(r.bottom, h) - Math.max(r.top, 0));
+  const botOv = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, innerHeight - h));
+  pop.classList.toggle('dock-top', botOv > topOv);
 }
 function popFill(){
   const c = deck[activeSlot - 1];
