@@ -276,6 +276,15 @@
   body.mob .brand .wm{height:58px}
   body.mob .tabs{width:100%}
   body.mob .tabs button{flex:1}
+
+/* grid layout instead of fanned overlap (desktop), square right corners, larger corner indexes */
+body:not(.mob) .spread{display:grid!important;grid-template-columns:repeat(auto-fill,66px)!important;gap:8px 6px!important;overflow:visible!important;padding:4px 2px 8px!important}
+body:not(.mob) .spread .row{display:contents!important}
+body:not(.mob) .spread .card{position:relative!important;left:auto!important;top:auto!important;z-index:auto!important;box-shadow:-1px 1px 3px rgba(0,0,0,.35)!important}
+.spread .card{border-top-right-radius:0!important;border-bottom-right-radius:0!important}
+body:not(.mob) .spread .card .idx{top:3px;left:5px}
+body:not(.mob) .spread .card .idx .v{font-size:24px}
+body:not(.mob) .spread .card .idx .s{font-size:22px}
 </style>
 </head>
 <body>
@@ -692,7 +701,7 @@ function fitGrid(el, n){
   }
   el.style.gridTemplateColumns = 'repeat(' + best.c + ',minmax(0,1fr))';
   el.style.gridTemplateRows = 'repeat(' + best.r + ',minmax(0,1fr))';
-  el.style.setProperty('--cf', Math.max(9, Math.min(15, best.ch * 0.27)) + 'px');
+  el.style.setProperty('--cf', Math.max(10, Math.min(18, best.ch * 0.30)) + 'px');
   el.style.setProperty('--cp', Math.max(8, Math.min(11, best.ch * 0.19)) + 'px');
 }
 window.addEventListener('resize', () => { if(isMobile()){ setBarH(); (currentTab === 'setup' ? SetupApp : LabApp).recompute(); } });
