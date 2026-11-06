@@ -289,6 +289,11 @@ body:not(.mob) .spread .card .idx .s{font-size:22px}
 /* midpoint markers in the bottom right corner */
 .card .mk{left:auto!important;right:5px!important;top:auto!important;bottom:4px!important;transform:none!important;text-align:right;line-height:1}
 body.mob .card .mk{right:3px!important;bottom:3px!important}
+
+.srow{cursor:pointer}
+.srow:hover{border-color:var(--muted)}
+.srow.editing{border-color:var(--accent)}
+.srow button{cursor:pointer}
 </style>
 </head>
 <body>
@@ -343,9 +348,8 @@ body.mob .card .mk{right:3px!important;bottom:3px!important}
 <div class="spread clickable" id="s-startSpread"></div>
 <div class="seqline" id="s-seqLine"></div>
 <div class="toolbar" id="s-tbSave">
-  <button id="s-saveSetup">Save Setup</button>
-  <button id="s-saveNew" class="hide">Save as new</button>
-  <button id="s-stopEdit" class="hide">Stop editing</button>
+  <button id="s-saveSetup">Save New Setup</button>
+  <button id="s-saveNew" class="hide">Save</button>
   <button id="s-toLab">Open in Experiment</button>
   <button id="s-savePng">Export image</button>
   <button id="s-saveTxt">Export list</button>
@@ -1419,37 +1423,32 @@ function renderSaved(){
   const all = Store.all();
   let h = '';
   if(!Store.persistent()) h += '<div class="snone">Browser storage is unavailable here, so saved setups will be lost when this page closes.</div>';
-  if(!all.length) h += '<div class="snone">Nothing saved yet. Build a setup above and press Save Setup.</div>';
+  if(!all.length) h += '<div class="snone">Nothing saved yet. Build a setup above and press Save New Setup.</div>';
   all.forEach(s => {
-    h += '<div class="srow' + (s.id === editingId ? ' editing' : '') + '"><div class="sinfo"><div class="sname">' + esc(s.name) + '</div><div class="smeta">' + esc(describeSetup(s.st)) + '</div></div>' +
-      '<div class="sbtns"><button data-act="rename" data-id="' + s.id + '">Rename</button><button data-act="edit" data-id="' + s.id + '">Edit</button><button data-act="delete" data-id="' + s.id + '">Delete</button></div></div>';
+    h += '<div class="srow' + (s.id === editingId ? ' editing' : '') + '" data-id="' + s.id + '"><div class="sinfo"><div class="sname">' + esc(s.name) + '</div><div class="smeta">' + esc(describeSetup(s.st)) + '</div></div>' +
+      '<div class="sbtns"><button data-act="rename" data-id="' + s.id + '">Rename</button><button data-act="delete" data-id="' + s.id + '">Delete</button></div></div>';
   });
   $('savedList').innerHTML = h;
   const ed = editingId ? Store.get(editingId) : null;
-  $('saveSetup').textContent = ed ? 'Update setup' : 'Save Setup';
   $('saveNew').classList.toggle('hide', !ed);
-  $('stopEdit').classList.toggle('hide', !ed);
   $('editBanner').classList.toggle('hide', !ed);
-  if(ed) $('editBanner').textContent = 'Editing "' + ed.name + '". Update setup saves your changes to it, or use Save as new to keep it unchanged.';
+  if(ed) $('editBanner').textContent = 'Editing "' + ed.name + '". Save updates it, or Save New Setup keeps it unchanged and saves a copy.';
 }
 $('saveSetup').addEventListener('click', () => {
-  const st = getSetup();
   const ed = editingId ? Store.get(editingId) : null;
-  if(ed){ Store.update(ed.id, st); say('Updated "' + ed.name + '".'); return; }
-  const name = askName('Name this setup', nextName());
-  if(name === null) return;
-  Store.add(name, st);
-  say('Saved "' + name + '".');
-});
-$('saveNew').addEventListener('click', () => {
-  const ed = editingId ? Store.get(editingId) : null;
-  const name = askName('Name the new setup', ed ? ed.name + ' copy' : nextName());
+  const name = askName('Name this setup', ed ? ed.name + ' copy' : nextName());
   if(name === null) return;
   editingId = Store.add(name, getSetup());
   renderSaved();
   say('Saved "' + name + '".');
 });
-$('stopEdit').addEventListener('click', () => { editingId = null; renderSaved(); });
+$('saveNew').addEventListener('click', () => {
+  const ed = editingId ? Store.get(editingId) : null;
+  if(!ed) return;
+  if(!window.confirm('Overwrite "' + ed.name + '" with your changes?')) return;
+  Store.update(ed.id, getSetup());
+  say('Saved "' + ed.name + '".');
+});
 function closeToLab(){ $('toLabPanel').classList.add('hide'); }
 $('toLab').addEventListener('click', e => {
   e.stopPropagation();
@@ -1471,19 +1470,20 @@ document.addEventListener('click', () => { if(currentTab === 'setup') closeToLab
 document.addEventListener('keydown', e => { if(currentTab === 'setup' && e.key === 'Escape') closeToLab(); });
 $('savedList').addEventListener('click', e => {
   const b = e.target.closest('button[data-act]');
-  if(!b) return;
-  const s = Store.get(b.dataset.id);
+  const row = e.target.closest('.srow');
+  const s = Store.get(b ? b.dataset.id : row && row.dataset.id);
   if(!s) return;
-  if(b.dataset.act === 'rename'){
+  const act = b ? b.dataset.act : 'edit';
+  if(act === 'rename'){
     const name = askName('Rename setup', s.name);
     if(name !== null) Store.rename(s.id, name);
-  } else if(b.dataset.act === 'edit'){
+  } else if(act === 'edit'){
     commit();
     setSetup(s.st);
     editingId = s.id;
     renderSaved();
-    say('Loaded "' + s.name + '" for editing.');
-  } else if(b.dataset.act === 'delete'){
+    say('Loaded "' + s.name + '".');
+  } else if(act === 'delete'){
     if(!window.confirm('Delete "' + s.name + '"?')) return;
     if(editingId === s.id) editingId = null;
     Store.remove(s.id);
@@ -1617,7 +1617,7 @@ $('mMid').addEventListener('click', () => openSheet('midSheet'));
 $('saveClose').addEventListener('click', closeSheets);
 $('midClose').addEventListener('click', closeSheets);
 ['saveTxt', 'savePng'].forEach(id => $(id).addEventListener('click', closeSheets));
-$('savedList').addEventListener('click', e => { if(e.target.closest('button[data-act="edit"]')) closeSheets(); });
+$('savedList').addEventListener('click', e => { if(e.target.closest('.srow') && !e.target.closest('button')) closeSheets(); });
 ['saveSheet', 'midSheet', 'mbarMain', 'mbarSel'].forEach(id => $(id).addEventListener('click', e => e.stopPropagation()));
 
 applyDefaults(Defaults.get("setup"));
