@@ -266,6 +266,36 @@
   body.mob .bl .dsk{display:none}
   body.mob .bl .mbl{display:inline}
 
+.pop .mnav{display:flex!important;align-items:center;justify-content:center;width:36px;height:34px;padding:0}
+.pop .mnav svg{width:18px;height:18px;fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round;pointer-events:none}
+body.mob .pop .mnav{width:44px;height:40px}
+
+.pop .auto{display:flex!important;align-items:center;gap:6px;margin-top:10px;font-size:13px;color:var(--muted)}
+body.mob .pop .auto{display:none!important}
+
+/* ? help buttons and popover */
+.help{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:6px;border:1px solid var(--muted);border-radius:50%;color:var(--muted);font:600 11px/1 Georgia,serif;cursor:pointer;vertical-align:middle;position:relative;flex:none}
+.help::after{content:"";position:absolute;inset:-8px}
+.help,body.mob .help{width:18px!important;height:18px!important;min-width:0!important;padding:0!important;border-radius:50%!important;flex:none!important;line-height:1!important}
+.help:hover,.help:focus-visible,.help.on{color:var(--accent);border-color:var(--accent)}
+.help:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h2 .help{font-size:11px;margin-left:8px;position:relative;top:-1px}
+.switch .help.inswitch{display:none}
+body.mob .switch .help.inswitch{display:inline-flex;align-self:center;margin:0 8px}
+body.mob h2 .help{display:none}
+body.mob .help.dskonly{display:none}
+.hrow,.hwrap{display:flex;align-items:center;gap:6px}
+.hwrap .help{margin-left:0}
+.cl{display:block}
+.seg button.help,.seg button.help:last-child,.seg button.help:first-child{border-radius:50%!important;padding:0!important;width:18px!important;height:18px!important;flex:none!important;min-width:0!important;border:1px solid var(--muted)!important}
+.seg .help{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin:0 8px;border:1px solid var(--muted);border-radius:50%;color:var(--muted);font:600 11px/1 Georgia,serif;cursor:pointer;align-self:center;position:relative;flex:none;background:none}
+.seg .help:hover,.seg .help.on{color:var(--accent);border-color:var(--accent)}
+.hrow button:first-child{flex:1}
+body.mob .hrow .help{display:none}
+#helpPop{position:fixed;z-index:3000;max-width:min(300px,calc(100vw - 24px));background:var(--panel);color:var(--text);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;box-shadow:0 6px 24px rgba(0,0,0,.45);font-size:14px;line-height:1.45}
+#helpPop.hide{display:none}
+#helpPop .ht{color:var(--accent);margin-bottom:4px;font-size:14px}
+
   .brand{margin:0;font-weight:normal;line-height:0}
   .brand .wm{height:76px;width:auto;display:block}
   .brand .ic{display:none;height:50px;width:auto}
@@ -316,44 +346,44 @@ body.mob .card .mk{right:3px!important;bottom:3px!important}
   <div class="ctl">Cards in deck
     <input type="number" id="s-deckSize" value="54" min="2" max="500">
   </div>
-  <div class="ctl">Shuffle type
+  <div class="ctl"><span class="cl">Shuffle type <button type="button" class="help" data-help="shuffle" aria-label="What is shuffle type?">?</button></span>
     <div class="seg" id="s-modeSeg">
       <button data-m="I">All In</button>
       <button data-m="O" class="on">All Out</button>
       <button data-m="M">Mixed</button>
     </div>
   </div>
-  <div class="ctl" id="s-countWrap">Number of shuffles
+  <div class="ctl" id="s-countWrap"><span class="cl">Number of shuffles <button type="button" class="help" data-help="count" aria-label="What is number of shuffles?">?</button></span>
     <input type="number" id="s-count" value="6" min="0" max="100">
   </div>
-  <div class="ctl hide" id="s-seqWrap">Sequence (I = In, O = Out, in order performed)
+  <div class="ctl hide" id="s-seqWrap"><span class="cl">Sequence (I = In, O = Out, in order performed) <button type="button" class="help" data-help="sequence" aria-label="What is sequence?">?</button></span>
     <input type="text" id="s-seq" value="IOOIIO" spellcheck="false">
   </div>
-  <div class="ctl"><button id="s-saveDefaults">Save defaults</button></div>
+  <div class="ctl"><div class="hwrap"><button id="s-saveDefaults">Save defaults</button><button type="button" class="help" data-help="defaults" aria-label="What is save defaults?">?</button></div></div>
 </div>
 
 <div class="toolbar" id="s-tbHist">
   <button id="s-undoBtn">Undo</button>
   <button id="s-redoBtn">Redo</button>
   <button id="s-resetBtn">Reset all</button>
-  <label class="tgl"><input type="checkbox" id="s-showMid" checked> Show midpoint cards</label>
-  <div class="seg" id="s-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button></div>
+  <label class="tgl"><input type="checkbox" id="s-showMid" checked> Show midpoint cards <button type="button" class="help" data-help="midpoint" aria-label="What is show midpoint cards?">?</button></label>
+  <div class="seg" id="s-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button><button type="button" class="help" data-help="midwhich" aria-label="What is which card to mark?">?</button></div>
 </div>
 
-<div class="seg switch" id="s-switch"><button data-l="end" class="on">Ending Order</button><button data-l="start">Starting Order</button></div>
+<div class="seg switch" id="s-switch"><button data-l="end" class="on">Ending Order</button><button data-l="start">Starting Order</button><button type="button" class="help inswitch" data-help="orders" aria-label="What is ending order and starting order?">?</button></div>
 <div class="banner" id="s-banner"></div>
-<h2>Ending Order</h2>
+<h2>Ending Order <button type="button" class="help" data-help="orders" aria-label="What is ending order and starting order?">?</button></h2>
 <div class="hint">Click a position to assign a card. Drag assigned cards to move them. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
 <div class="spread clickable" id="s-endSpread"></div>
 
-<h2>Starting Order</h2>
+<h2>Starting Order <button type="button" class="help" data-help="orders" aria-label="What is ending order and starting order?">?</button></h2>
 <div class="hint">Set the deck up like this before the shuffles. Position 1 is the top card. You can assign and move cards here too, and the Ending Order updates to match.</div>
 <div class="spread clickable" id="s-startSpread"></div>
 <div class="seqline" id="s-seqLine"></div>
 <div class="toolbar" id="s-tbSave">
   <button id="s-saveSetup">Save New Setup</button>
-  <button id="s-saveNew" class="hide">Save</button>
-  <button id="s-toLab">Open in Experiment</button>
+  <button id="s-saveNew" class="hide">Save</button><button type="button" class="help" data-help="save" aria-label="What is save new setup and save?">?</button>
+  <button id="s-toLab">Open in Experiment</button><button type="button" class="help dskonly" data-help="tolab" aria-label="What is open in experiment?">?</button>
   <button id="s-savePng">Export image</button>
   <button id="s-saveTxt">Export list</button>
   <span class="msg" id="s-saveMsg"></span>
@@ -370,14 +400,14 @@ body.mob .card .mk{right:3px!important;bottom:3px!important}
 <div id="s-results"></div>
 
 <div class="pop hide" id="s-pop">
-  <div class="head"><button class="mnav" id="s-popPrev">&#9664;</button><div class="t" id="s-popTitle"></div><button class="mnav" id="s-popNext">&#9654;</button></div>
+  <div class="head"><button class="mnav" id="s-popPrev" aria-label="Previous position"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5L7 12l9 7z"/></svg></button><div class="t" id="s-popTitle"></div><button class="mnav" id="s-popNext" aria-label="Next position"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l9 7-9 7z"/></svg></button></div>
   <div class="grid vals" id="s-gridV"></div>
   <div class="gap"></div>
   <div class="grid suits" id="s-gridS"></div>
   <div class="gap"></div>
   <div class="grid jokers" id="s-gridJ"></div>
   <div class="err" id="s-popErr"></div>
-  <label class="auto"><input type="checkbox" id="s-popAuto" checked> Next position after picking</label>
+  <label class="auto"><input type="checkbox" id="s-popAuto" checked> Next position after picking <button type="button" class="help" data-help="auto" aria-label="What is next position after picking?">?</button></label>
   <div class="foot">
     <button id="s-popClear">Clear</button>
     <button id="s-popCancel"><span class="dsk">Close</span><span class="mbl">Done</span></button>
@@ -433,25 +463,25 @@ body.mob .card .mk{right:3px!important;bottom:3px!important}
   <div class="ctl">Cards in deck
     <input type="number" id="l-deckSize" value="54" min="1" max="500">
   </div>
-  <div class="ctl">Shuffle type
+  <div class="ctl"><span class="cl">Shuffle type <button type="button" class="help" data-help="shuffle" aria-label="What is shuffle type?">?</button></span>
     <div class="seg" id="l-modeSeg">
       <button data-m="I">All In</button>
       <button data-m="O" class="on">All Out</button>
       <button data-m="M">Mixed</button>
     </div>
   </div>
-  <div class="ctl" id="l-countWrap">Number of shuffles
+  <div class="ctl" id="l-countWrap"><span class="cl">Number of shuffles <button type="button" class="help" data-help="count" aria-label="What is number of shuffles?">?</button></span>
     <input type="number" id="l-count" value="6" min="0" max="100">
   </div>
-  <div class="ctl hide" id="l-seqWrap">Sequence (I = In, O = Out, in order performed)
+  <div class="ctl hide" id="l-seqWrap"><span class="cl">Sequence (I = In, O = Out, in order performed) <button type="button" class="help" data-help="sequence" aria-label="What is sequence?">?</button></span>
     <input type="text" id="l-seq" value="IOOIIO" spellcheck="false">
   </div>
-  <div class="ctl"><button id="l-saveDefaults">Save defaults</button></div>
+  <div class="ctl"><div class="hwrap"><button id="l-saveDefaults">Save defaults</button><button type="button" class="help" data-help="defaults" aria-label="What is save defaults?">?</button></div></div>
 </div>
 
 <div class="toolbar" id="l-tbMid">
-  <label class="tgl"><input type="checkbox" id="l-showMid" checked> Show midpoint cards</label>
-  <div class="seg" id="l-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button></div>
+  <label class="tgl"><input type="checkbox" id="l-showMid" checked> Show midpoint cards <button type="button" class="help" data-help="midpoint" aria-label="What is show midpoint cards?">?</button></label>
+  <div class="seg" id="l-midWhich"><button data-w="bottom" class="on">Bottom of 1/2</button><button data-w="top">Top of 2/2</button><button type="button" class="help" data-help="midwhich" aria-label="What is which card to mark?">?</button></div>
 </div>
 
 <div class="banner" id="l-banner"></div>
@@ -462,7 +492,7 @@ body.mob .card .mk{right:3px!important;bottom:3px!important}
 
 <div class="midrow">
   <div class="bank" id="l-bank">
-    <div class="bl"><span class="dsk">Discard (drop cards here to remove them from the deck, drag them back to restore)</span><span class="mbl" id="l-bankTitle">Discard</span></div>
+    <div class="bl"><span class="dsk">Discard (drop cards here to remove them from the deck, drag them back to restore)</span><span class="dsk"><button type="button" class="help" data-help="discard" aria-label="What is discard?">?</button></span><span class="mbl" id="l-bankTitle">Discard</span></div>
     <div class="bankcards" id="l-bankCards"></div>
     <div class="note bankbtns" style="font-size:12px;color:var(--muted)">Tap a discarded card, then tap a position in the deck to put it back.</div>
     <div class="bankbtns"><button id="l-bankSend">Send selected to Discard</button><button id="l-bankRestore">Restore all</button><button id="l-bankClose">Close</button></div>
@@ -470,23 +500,23 @@ body.mob .card .mk{right:3px!important;bottom:3px!important}
   <div class="side">
     <button class="big" id="l-shuffleBtn">Shuffle</button>
     <div class="btnrow"><button id="l-undoBtn">Undo</button><button id="l-redoBtn">Redo</button></div>
-    <button id="l-hlBtn" disabled>Highlight selected</button>
-    <button id="l-renumberBtn">Renumber</button>
+    <div class="hrow"><button id="l-hlBtn" disabled>Highlight selected</button><button type="button" class="help" data-help="highlight" aria-label="What is highlight?">?</button></div>
+    <div class="hrow"><button id="l-renumberBtn">Renumber</button><button type="button" class="help" data-help="renumber" aria-label="What is renumber?">?</button></div>
     <button id="l-resetBtn">Reset all</button>
-    <button id="l-importBtn">Import setup</button>
+    <div class="hrow"><button id="l-importBtn">Import setup</button><button type="button" class="help" data-help="import" aria-label="What is import setup?">?</button></div>
     <div class="seqline" id="l-seqLine"></div>
   </div>
 </div>
 
 <div class="pop hide" id="l-pop">
-  <div class="head"><button class="mnav" id="l-popPrev">&#9664;</button><div class="t" id="l-popTitle"></div><button class="mnav" id="l-popNext">&#9654;</button></div>
+  <div class="head"><button class="mnav" id="l-popPrev" aria-label="Previous position"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 5L7 12l9 7z"/></svg></button><div class="t" id="l-popTitle"></div><button class="mnav" id="l-popNext" aria-label="Next position"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l9 7-9 7z"/></svg></button></div>
   <div class="grid vals" id="l-gridV"></div>
   <div class="gap"></div>
   <div class="grid suits" id="l-gridS"></div>
   <div class="gap"></div>
   <div class="grid jokers" id="l-gridJ"></div>
   <div class="err" id="l-popErr"></div>
-  <label class="auto"><input type="checkbox" id="l-popAuto" checked> Next position after picking</label>
+  <label class="auto"><input type="checkbox" id="l-popAuto" checked> Next position after picking <button type="button" class="help" data-help="auto" aria-label="What is next position after picking?">?</button></label>
   <div class="foot">
     <button id="l-popClear">Clear face</button>
     <button id="l-popCancel"><span class="dsk">Close</span><span class="mbl">Done</span></button>
@@ -1582,6 +1612,18 @@ function popFill(){
   $('popClear').classList.toggle('hide', !cur);
   paintPop();
 }
+
+function placePop(el){
+  if(isMobile() || !el) return;
+  const pop = $('pop');
+  if(el.scrollIntoView) el.scrollIntoView({block:'nearest', inline:'nearest'});
+  const r = el.getBoundingClientRect(), ph = pop.offsetHeight, pw = pop.offsetWidth;
+  let left = Math.min(window.innerWidth - pw - 8, Math.max(8, r.left));
+  let top = r.bottom + 8;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
 function gotoPos(p){
   p = Math.max(1, Math.min(N, p));
   activePos = p;
@@ -1590,11 +1632,22 @@ function gotoPos(p){
   popFill();
   recompute();
   revealActive();
+  placePop(document.querySelector('#s-' + activeList + 'Spread .card[data-pos="' + activePos + '"]'));
 }
 function afterAssign(){
-  if(isMobile() && $('popAuto').checked && activePos < N) gotoPos(activePos + 1);
+  if($('popAuto').checked && activePos < N) gotoPos(activePos + 1);
   else closePop();
 }
+
+document.addEventListener('keydown', e => {
+  if(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if(e.target.closest && e.target.closest('input,textarea,select')) return;
+  if(!$('pop') || $('pop').classList.contains('hide')) return;
+  if(currentTab !== 'setup') return;
+  e.preventDefault();
+  $('pop' + (e.key === 'ArrowLeft' ? 'Prev' : 'Next')).click();
+});
 $('popPrev').addEventListener('click', () => { if(activePos) gotoPos(activePos - 1); });
 $('popNext').addEventListener('click', () => { if(activePos) gotoPos(activePos + 1); });
 
@@ -2230,6 +2283,18 @@ function popFill(){
   $('popClear').classList.toggle('hide', !c.face);
   paintPop();
 }
+
+function placePop(el){
+  if(isMobile() || !el) return;
+  const pop = $('pop');
+  if(el.scrollIntoView) el.scrollIntoView({block:'nearest', inline:'nearest'});
+  const r = el.getBoundingClientRect(), ph = pop.offsetHeight, pw = pop.offsetWidth;
+  let left = Math.min(window.innerWidth - pw - 8, Math.max(8, r.left));
+  let top = r.bottom + 8;
+  if(top + ph > window.innerHeight - 8) top = Math.max(8, r.top - ph - 8);
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
 function gotoSlot(s){
   s = Math.max(1, Math.min(deck.length, s));
   activeSlot = s;
@@ -2237,11 +2302,22 @@ function gotoSlot(s){
   popFill();
   recompute();
   revealActive();
+  placePop(document.querySelector('#l-deckSpread .card[data-slot="' + activeSlot + '"]'));
 }
 function afterAssign(){
-  if(isMobile() && $('popAuto').checked && activeSlot < deck.length) gotoSlot(activeSlot + 1);
+  if($('popAuto').checked && activeSlot < deck.length) gotoSlot(activeSlot + 1);
   else closePop();
 }
+
+document.addEventListener('keydown', e => {
+  if(e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  if(e.target.closest && e.target.closest('input,textarea,select')) return;
+  if(!$('pop') || $('pop').classList.contains('hide')) return;
+  if(currentTab !== 'lab') return;
+  e.preventDefault();
+  $('pop' + (e.key === 'ArrowLeft' ? 'Prev' : 'Next')).click();
+});
 $('popPrev').addEventListener('click', () => { if(activeSlot) gotoSlot(activeSlot - 1); });
 $('popNext').addEventListener('click', () => { if(activeSlot) gotoSlot(activeSlot + 1); });
 
@@ -2322,6 +2398,37 @@ function switchTab(name){
 }
 document.getElementById('tabSetup').addEventListener('click', () => switchTab('setup'));
 document.getElementById('tabLab').addEventListener('click', () => switchTab('lab'));
+
+// ----- ? help popovers -----
+const HELPTXT = {"shuffle": ["Shuffle type", "Out leaves the top and bottom cards where they are. In moves them to second from the top and second from the bottom. Mixed lets you choose each shuffle yourself in the sequence below. This assumes an even number of cards, like 52 or 54."], "sequence": ["Sequence", "One letter per shuffle, in the order you will perform them. I = In, O = Out. For example, OIO means Out, then In, then Out."], "count": ["Number of shuffles", "How many Faro shuffles you will do. Faro Lab works backward through all of them to find the starting order."], "midpoint": ["Show midpoint cards", "Cutting the deck exactly in half is the hardest part of a Faro. This marks the position in your starting order that will sit at the halfway cut before each shuffle. M1 is for the first shuffle, M2 for the second, and so on. Give each one a card you will recognize and you can find the center fast."], "midwhich": ["Which card to mark", "Choose which card is marked: the bottom card of the top half, or the top card of the bottom half. Pick whichever matches the card you look for when you cut."], "defaults": ["Save defaults", "Saves your deck size, shuffle type and sequence as the starting point whenever you open Faro Lab."], "orders": ["Ending Order and Starting Order", "Ending Order is what you want the deck to look like after the shuffles. Starting Order is how the deck has to be arranged before them. Fill in either one and the other updates."], "save": ["Save New Setup and Save", "Save New Setup stores this as a new named setup. Save overwrites the setup you currently have loaded."], "tolab": ["Open in Experiment", "Sends this setup to the Experiment tab so you can shuffle it and watch what happens."], "discard": ["Discard", "A holding area for cards you pull out of the deck. Drag a card in to remove it, then drag it back or tap it to restore it."], "highlight": ["Highlight", "Marks the selected cards in gold so you can follow them through the shuffles."], "renumber": ["Renumber", "Resets the card numbers to match their current order. Use it after shuffling when you want to track the next round from a clean start."], "import": ["Import setup", "Brings in one of your saved setups, laid out as its Starting Order or its Ending Order."], "auto": ["Next position after picking", "After you pick a card, the picker moves to the next position so you can fill a run of cards quickly."]};
+(function(){
+  const pop = document.createElement('div');
+  pop.id = 'helpPop'; pop.className = 'hide'; pop.setAttribute('role', 'tooltip');
+  pop.innerHTML = '<div class="ht"></div><div class="hb"></div>';
+  document.body.appendChild(pop);
+  let cur = null;
+  function close(){ pop.classList.add('hide'); if(cur) cur.classList.remove('on'); cur = null; }
+  function open(btn){
+    const d = HELPTXT[btn.dataset.help]; if(!d) return;
+    if(cur) cur.classList.remove('on');
+    cur = btn; btn.classList.add('on');
+    pop.firstChild.textContent = d[0]; pop.lastChild.textContent = d[1];
+    pop.classList.remove('hide');
+    const r = btn.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight;
+    let left = Math.max(12, Math.min(window.innerWidth - pw - 12, r.left + r.width / 2 - pw / 2));
+    let top = r.bottom + 8;
+    if(top + ph > window.innerHeight - 12) top = Math.max(12, r.top - ph - 8);
+    pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.help');
+    if(b){ e.preventDefault(); e.stopPropagation(); if(cur === b) close(); else open(b); return; }
+    if(!pop.contains(e.target)) close();
+  }, true);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') close(); });
+  window.addEventListener('resize', close);
+  window.addEventListener('scroll', close, true);
+})();
 
 </script>
 </body>
