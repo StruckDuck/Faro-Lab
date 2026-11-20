@@ -347,6 +347,24 @@ body.mob .mug{height:24px}
 body.mob .cpop{position:absolute;right:0;top:calc(100% + 6px);display:none;flex-direction:column;gap:1px;background:var(--panel);color:var(--text);border:1px solid var(--accent);border-radius:8px;padding:8px 12px;font-size:14px;box-shadow:0 6px 24px rgba(0,0,0,.45)}
 body.mob .cpop small{font-size:11px;color:var(--muted)}
 body.mob #coffee.open .cpop{display:flex}
+
+  /* ---- card trail: position top right, previous positions bottom left ---- */
+  .card .cur{position:absolute;top:5px;right:5px;font-size:14px;font-weight:bold;line-height:1;color:var(--ink);pointer-events:none}
+  .card .hist{position:absolute;left:5px;bottom:4px;display:flex;flex-direction:column;font-size:11px;line-height:12px;pointer-events:none}
+  .card .hist span{display:block}
+  .hO{color:#c4581f}.hI{color:#3f4a9a}.hH{color:#8a8470}
+  #histTip{position:fixed;z-index:3000;display:none;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:15px;color:var(--text);box-shadow:0 4px 14px rgba(0,0,0,.4);white-space:nowrap}
+  #histTip .hO{color:#e58a52}#histTip .hI{color:#9aa3ee}#histTip .hH{color:#a9b5b2}
+  #histTip .harr,.histStrip .harr{color:var(--muted)}
+  .histStrip{display:none}
+  body.mob .histStrip{display:block;min-height:36px;margin:0 0 6px;font-size:14px;line-height:18px;color:var(--text)}
+  body.mob .histStrip>div{white-space:nowrap;overflow-x:auto}
+  body.mob .histStrip .hmuted{color:var(--muted);font-size:13px}
+  body.mob .histStrip .hO{color:#e58a52}body.mob .histStrip .hI{color:#9aa3ee}body.mob .histStrip .hH{color:#a9b5b2}
+  body.mob .card .cur{top:3px;right:3px;font-size:var(--cp,11px)}
+  body.mob .card .hist.up{bottom:calc(var(--cp,11px) + 3px)}
+  body.mob .card.has .cur{font-size:calc(var(--cp,11px) - 1px)}
+  body.mob .card .hist{left:4px;bottom:3px;font-size:calc(var(--cp,11px) - 2px);line-height:calc(var(--cp,11px) - 1px)}
 </style>
 </head>
 <body>
@@ -505,8 +523,9 @@ body.mob #coffee.open .cpop{display:flex}
 </div>
 
 <div class="banner" id="l-banner"></div>
+<div class="histStrip" id="l-histStrip"></div>
 <h2>Deck</h2>
-<div class="hint">Click a card to assign a face. Drag cards to move them. Every card keeps the number it started with, so after a shuffle you can see where each one came from. Drag to Discard to remove it. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
+<div class="hint">Click a card to assign a face. Drag cards to move them. The number at the top right is where a card is now. The numbers at the bottom left are where it was before each move, oldest first: orange for an Out shuffle, indigo for an In shuffle, gray for a move by hand. Hover a card to see its whole path. Drag to Discard to remove it. Ctrl/Cmd+click toggles a selection, Shift+click selects a range, and dragging a selected card moves the whole group.</div>
 <div class="spread clickable" id="l-deckSpread"></div>
 <button class="bankchip" id="l-bankChip">Discard (0)</button>
 
@@ -1713,12 +1732,12 @@ let deck = [], bank = []; // card = {id, face:{v,s}|null}
 let mode = 'O';
 let sel = new Set(), anchor = null, activeSlot = null, suppressClick = false;
 
-function newCard(){ return {id: nextId++, uid: nextUid++, face: null}; }
+function newCard(){ return {id: nextId++, uid: nextUid++, face: null, h: []}; }
 function initDeck(n){ deck = []; bank = []; for(let i=0;i<n;i++) deck.push(newCard()); }
 
 // ----- undo / redo (covers the deck and the bank, not the settings at the top) -----
 let undoStack = [], redoStack = [];
-const copyCard = c => ({id: c.id, uid: c.uid, face: c.face ? {v:c.face.v, s:c.face.s} : null});
+const copyCard = c => ({id: c.id, uid: c.uid, face: c.face ? {v:c.face.v, s:c.face.s} : null, h: (c.h || []).map(x => ({n: x.n, t: x.t}))});
 function snap(){ return {deck: deck.map(copyCard), bank: bank.map(copyCard), nextId}; }
 function commit(){
   undoStack.push(snap());
@@ -1742,7 +1761,7 @@ function updateHistoryButtons(){
 }
 
 function getSeq(){ return seqFrom(mode, $('count').value, $('seq').value); }
-function makeCardEl(c, labelNum){
+function makeCardEl(c, labelNum, isMid){
   const d = document.createElement('div');
   d.className = 'card';
   if(hlSet.has(c.uid)) d.classList.add('hl');
@@ -1755,11 +1774,39 @@ function makeCardEl(c, labelNum){
     d.classList.add('has');
   }
   d.appendChild(idx);
-  const pn = document.createElement('div');
-  pn.className = 'pos';
-  pn.textContent = labelNum;
-  d.appendChild(pn);
+  if(labelNum !== null && labelNum !== undefined){
+    const cu = document.createElement('div');
+    cu.className = 'cur';
+    cu.textContent = labelNum;
+    d.appendChild(cu);
+  }
+  const hs = c.h || [];
+  if(hs.length){
+    const cap = histCap(c, isMid), shown = hs.slice(-cap), cut = hs.length > cap;
+    const hl = document.createElement('div');
+    hl.className = 'hist' + (isMid ? ' up' : '');
+    shown.forEach((e, i) => {
+      const sp = document.createElement('span');
+      sp.className = 'h' + e.t;
+      sp.textContent = e.n;
+      if(cut && i === 0) sp.style.opacity = '.28';
+      else if(cut && i === 1 && cap >= 3) sp.style.opacity = '.62';
+      hl.appendChild(sp);
+    });
+    d.appendChild(hl);
+  }
   return d;
+}
+function histCap(c, isMid){ return isMobile() ? Math.max(1, (c.face ? 2 : 3) - (isMid ? 1 : 0)) : (c.face ? 4 : 5); }
+function pathHtml(c, pos){
+  const parts = (c.h || []).map(e => '<span class="h' + e.t + '">' + e.n + '</span>');
+  parts.push(pos === null || pos === undefined ? '<span class="hnow">Discard</span>' : '<b class="hnow">' + pos + '</b>');
+  return parts.join('<span class="harr"> &rarr; </span>');
+}
+function posMap(){ const m = new Map(); deck.forEach((c, i) => m.set(c, i + 1)); return m; }
+function handMark(before){
+  deck.forEach((c, i) => { const b = before.get(c); if(b !== undefined && b !== i + 1) (c.h || (c.h = [])).push({n: b, t: 'H'}); });
+  bank.forEach(c => { const b = before.get(c); if(b !== undefined) (c.h || (c.h = [])).push({n: b, t: 'H'}); });
 }
 
 function renderSpread(el, cards, opts){
@@ -1779,7 +1826,7 @@ function renderSpread(el, cards, opts){
     row.style.width = ((last-first)*step + W + 4) + 'px';
     for(let s=first;s<=last;s++){
       const c = cards[s-1];
-      const d = makeCardEl(c, c.id);
+      const d = makeCardEl(c, s, !!(opts.marks && opts.marks[s]));
       d.style.left = ((s-first)*step) + 'px';
       d.style.zIndex = s;
       d.dataset.slot = s;
@@ -1811,7 +1858,7 @@ function renderBank(){
     return;
   }
   bank.forEach((c, i) => {
-    const d = makeCardEl(c, c.id);
+    const d = makeCardEl(c, null);
     d.style.zIndex = i + 1;
     d.dataset.bank = i;
     d.addEventListener('pointerdown', e => pressStart('bank', i, d, e));
@@ -1821,6 +1868,39 @@ function renderBank(){
 }
 
 function syncSize(){ $('deckSize').value = deck.length; }
+function histStrip(){
+  const b = $('histStrip');
+  if(!b) return;
+  if(!isMobile()) { b.innerHTML = ''; return; }
+  if(!sel.size){ b.innerHTML = '<div class="hmuted">Hold a card to see where it has been.</div>'; return; }
+  const slots = Array.from(sel).sort((x, y) => x - y);
+  let h = slots.slice(0, 2).map(s => '<div>' + (deck[s-1] ? pathHtml(deck[s-1], s) : '') + '</div>').join('');
+  if(slots.length > 2) h += '<div class="hmuted">+' + (slots.length - 2) + ' more selected</div>';
+  b.innerHTML = h;
+}
+const HistTip = (function(){
+  const tip = document.createElement('div');
+  tip.id = 'histTip';
+  document.body.appendChild(tip);
+  function hide(){ tip.style.display = 'none'; }
+  document.addEventListener('mouseover', e => {
+    if(isMobile() || currentTab !== 'lab') { hide(); return; }
+    const el = e.target.closest ? e.target.closest('#l-deckSpread .card, #l-bankCards .card') : null;
+    if(!el) { hide(); return; }
+    let c = null, pos = null;
+    if(el.dataset.slot){ pos = +el.dataset.slot; c = deck[pos - 1]; }
+    else if(el.dataset.bank !== undefined){ c = bank[+el.dataset.bank]; }
+    if(!c || !c.h || !c.h.length) { hide(); return; }
+    tip.innerHTML = pathHtml(c, pos);
+    tip.style.display = 'block';
+    const r = el.getBoundingClientRect(), tw = tip.offsetWidth, th = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(window.innerWidth - tw - 8, r.left + r.width / 2 - tw / 2)) + 'px';
+    tip.style.top = (r.top - th - 8 < 8 ? r.bottom + 8 : r.top - th - 8) + 'px';
+  });
+  document.addEventListener('pointerdown', hide);
+  window.addEventListener('scroll', hide, true);
+  return {hide};
+})();
 
 function recompute(){
   sel.forEach(s => { if(s > deck.length) sel.delete(s); });
@@ -1829,6 +1909,7 @@ function recompute(){
     active: activeSlot, picked: sel, marks: labMarks()
   });
   renderBank();
+  histStrip();
   $('hlBtn').disabled = !sel.size;
   const seq = getSeq();
   $('seqLine').innerHTML = seq.length
@@ -1839,7 +1920,7 @@ function recompute(){
 function doShuffle(){
   commit();
   let cards = deck.slice();
-  getSeq().forEach(tp => { cards = shuffleOnce(cards, tp); });
+  getSeq().forEach(tp => { cards.forEach((c, i) => { (c.h || (c.h = [])).push({n: i + 1, t: tp}); }); cards = shuffleOnce(cards, tp); });
   deck = cards;
   sel = new Set(); anchor = null;
   hidePop();
@@ -1962,15 +2043,19 @@ function pressStart(src, idx, el, e){
       if(src === 'deck'){
         if(t.type === 'bank'){
           commit();
+          const _pm = posMap();
           const set = new Set(moving);
           moving.forEach(s => bank.push(deck[s-1]));
           deck = deck.filter((_, i) => !set.has(i+1));
+          handMark(_pm);
           sel = new Set(); anchor = null;
           syncSize();
         } else if(t.type === 'slot'){
           commit();
+          const _pm = posMap();
           const r = moveInsert(deck, moving, t.q);
           deck = r.out;
+          handMark(_pm);
           sel = isMobile() ? new Set() : new Set(r.newSlots); anchor = null;
         }
       } else {
@@ -1980,8 +2065,10 @@ function pressStart(src, idx, el, e){
         else if(t.type === 'deck') q = deck.length + 1;
         if(q !== null){
           commit();
+          const _pm = posMap();
           bank.splice(idx, 1);
           deck.splice(q - 1, 0, card);
+          handMark(_pm);
           sel = isMobile() ? new Set() : new Set([q]); anchor = null;
           syncSize();
         }
@@ -2048,7 +2135,7 @@ function openPop(slot, el, e){
   activeSlot = slot;
   pickV = null; pickS = null;
   const c = deck[slot - 1];
-  $('popTitle').textContent = 'Position ' + slot + (c.id !== slot ? ' (card ' + c.id + ')' : '') + (c.face ? '  (now ' + cardLabel(c.face) + ')' : '');
+  $('popTitle').textContent = 'Position ' + slot + ((c.h && c.h.length) ? ' (started at ' + c.h[0].n + ')' : '') + (c.face ? '  (now ' + cardLabel(c.face) + ')' : '');
   $('popErr').textContent = '';
   $('popClear').classList.toggle('hide', !c.face);
   paintPop();
@@ -2104,8 +2191,8 @@ $('shuffleBtn').addEventListener('click', doShuffle);
 $('renumberBtn').addEventListener('click', () => {
   commit();
   let n = 1;
-  deck.forEach(c => { c.id = n++; });
-  bank.forEach(c => { c.id = n++; });
+  deck.forEach(c => { c.id = n++; c.h = []; });
+  bank.forEach(c => { c.id = n++; c.h = []; });
   nextId = n;
   recompute();
 });
@@ -2298,7 +2385,7 @@ function revealActive(){
 }
 function popFill(){
   const c = deck[activeSlot - 1];
-  $('popTitle').textContent = 'Position ' + activeSlot + (c.id !== activeSlot ? ' (card ' + c.id + ')' : '') + (c.face ? ' (now ' + cardLabel(c.face) + ')' : '');
+  $('popTitle').textContent = 'Position ' + activeSlot + ((c.h && c.h.length) ? ' (started at ' + c.h[0].n + ')' : '') + (c.face ? ' (now ' + cardLabel(c.face) + ')' : '');
   $('popErr').textContent = '';
   $('popClear').classList.toggle('hide', !c.face);
   paintPop();
@@ -2344,10 +2431,12 @@ $('popNext').addEventListener('click', () => { if(activeSlot) gotoSlot(activeSlo
 function sendSelToBank(){
   if(!sel.size) return;
   commit();
+  const _pm = posMap();
   const moving = Array.from(sel).sort((a, b) => a - b);
   const set = new Set(moving);
   moving.forEach(s => bank.push(deck[s-1]));
   deck = deck.filter((_, i) => !set.has(i+1));
+  handMark(_pm);
   sel = new Set(); anchor = null;
   syncSize();
   hidePop();
@@ -2360,8 +2449,10 @@ function bankTap(i){
 }
 function placeBanked(s){
   commit();
+  const _pm = posMap();
   const card = bank.splice(bankPick, 1)[0];
   deck.splice(s - 1, 0, card);
+  handMark(_pm);
   bankPick = null;
   sel = new Set(); anchor = null;
   syncSize();
@@ -2420,7 +2511,7 @@ document.getElementById('tabSetup').addEventListener('click', () => switchTab('s
 document.getElementById('tabLab').addEventListener('click', () => switchTab('lab'));
 
 // ----- ? help popovers -----
-const HELPTXT = {"shuffle": ["Shuffle type", "Out leaves the top and bottom cards where they are. In moves them to second from the top and second from the bottom. Mixed lets you choose each shuffle yourself in the sequence below. This assumes an even number of cards, like 52 or 54."], "sequence": ["Sequence", "One letter per shuffle, in the order you will perform them. I = In, O = Out. For example, OIO means Out, then In, then Out."], "count": ["Number of shuffles", "How many Faro shuffles you will do. Faro Lab works backward through all of them to find the starting order."], "midpoint": ["Show midpoint cards", "Cutting the deck exactly in half is the hardest part of a Faro. This marks the position in your starting order that will sit at the halfway cut before each shuffle. M1 is for the first shuffle, M2 for the second, and so on. Give each one a card you will recognize and you can find the center fast."], "midwhich": ["Which card to mark", "Choose which card is marked: the bottom card of the top half, or the top card of the bottom half. Pick whichever matches the card you look for when you cut."], "defaults": ["Save defaults", "Saves your deck size, shuffle type and sequence as the starting point whenever you open Faro Lab."], "orders": ["Ending Order and Starting Order", "Ending Order is what you want the deck to look like after the shuffles. Starting Order is how the deck has to be arranged before them. Fill in either one and the other updates."], "save": ["Save New Setup and Save", "Save New Setup stores this as a new named setup. Save overwrites the setup you currently have loaded."], "tolab": ["Open in Experiment", "Sends this setup to the Experiment tab so you can shuffle it and watch what happens."], "discard": ["Discard", "A holding area for cards you pull out of the deck. Drag a card in to remove it, then drag it back or tap it to restore it."], "highlight": ["Highlight", "Marks the selected cards in gold so you can follow them through the shuffles."], "renumber": ["Renumber", "Resets the card numbers to match their current order. Use it after shuffling when you want to track the next round from a clean start."], "import": ["Import setup", "Brings in one of your saved setups, laid out as its Starting Order or its Ending Order."], "auto": ["Next position after picking", "After you pick a card, the picker moves to the next position so you can fill a run of cards quickly."]};
+const HELPTXT = {"shuffle": ["Shuffle type", "Out leaves the top and bottom cards where they are. In moves them to second from the top and second from the bottom. Mixed lets you choose each shuffle yourself in the sequence below. This assumes an even number of cards, like 52 or 54."], "sequence": ["Sequence", "One letter per shuffle, in the order you will perform them. I = In, O = Out. For example, OIO means Out, then In, then Out."], "count": ["Number of shuffles", "How many Faro shuffles you will do. Faro Lab works backward through all of them to find the starting order."], "midpoint": ["Show midpoint cards", "Cutting the deck exactly in half is the hardest part of a Faro. This marks the position in your starting order that will sit at the halfway cut before each shuffle. M1 is for the first shuffle, M2 for the second, and so on. Give each one a card you will recognize and you can find the center fast."], "midwhich": ["Which card to mark", "Choose which card is marked: the bottom card of the top half, or the top card of the bottom half. Pick whichever matches the card you look for when you cut."], "defaults": ["Save defaults", "Saves your deck size, shuffle type and sequence as the starting point whenever you open Faro Lab."], "orders": ["Ending Order and Starting Order", "Ending Order is what you want the deck to look like after the shuffles. Starting Order is how the deck has to be arranged before them. Fill in either one and the other updates."], "save": ["Save New Setup and Save", "Save New Setup stores this as a new named setup. Save overwrites the setup you currently have loaded."], "tolab": ["Open in Experiment", "Sends this setup to the Experiment tab so you can shuffle it and watch what happens."], "discard": ["Discard", "A holding area for cards you pull out of the deck. Drag a card in to remove it, then drag it back or tap it to restore it."], "highlight": ["Highlight", "Marks the selected cards in gold so you can follow them through the shuffles."], "renumber": ["Renumber", "Clears the number trail on every card and starts again from where the cards are now. Use it after shuffling when you want to track the next round on its own."], "import": ["Import setup", "Brings in one of your saved setups, laid out as its Starting Order or its Ending Order."], "auto": ["Next position after picking", "After you pick a card, the picker moves to the next position so you can fill a run of cards quickly."]};
 (function(){
   const pop = document.createElement('div');
   pop.id = 'helpPop'; pop.className = 'hide'; pop.setAttribute('role', 'tooltip');
